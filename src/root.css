@@ -1,0 +1,183 @@
+
+:root {
+    font-family: Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#navigation-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 20rem;
+    background-color: teal;
+    color: white;
+    text-align: right;
+}
+
+
+#navigation-bar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#navigation-bar li {
+    padding: 1em 1em;
+    cursor: pointer;
+}
+
+#navigation-bar li:hover {
+    background-color: darkcyan;
+}
+
+
+#navigation-bar li.active {
+    background-color: lightseagreen;
+}
+
+#main-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: auto;
+    right: 0;
+    left: 0;
+    margin-left: 20rem;
+}
+
+
+.toolbar {
+    position: absolute;
+    right: 0;
+    left: 0;
+    padding: 1rem 2rem;
+    height: 2em;
+    line-height: 2em;
+    background: whitesmoke;
+}
+
+.toolbar label {
+    margin-right: 1em;
+    font-size: .9em;
+    font-weight: 500;
+}
+
+#entries-container {
+    position: absolute;
+    margin: 1rem;
+    top: 4rem;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    font-size: 75%;
+}
+
+#entries-header {
+    height: 2em;
+    padding: .5em 0;
+    background-color: whitesmoke;
+    border: 1px solid lightgray;
+    position: relative;
+
+}
+
+#entries-scroll {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 100%;
+    border-right: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+    margin-top: -3em;
+}
+
+#entries-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: auto;
+    width: 100%;
+    border-top: none;
+    /*background-color: whitesmoke;*/
+}
+
+#entries-table th {
+    text-align: left;
+    line-height: 2em;
+    height: 2em;
+    padding: .5em 1em;
+}
+
+#entries-table th span {
+    visibility: hidden;
+}
+
+#entries-table th div {
+    position: absolute;
+    top: 0;
+    padding: .5em 1em;
+    margin-left: -1em;
+    text-align: center;
+    line-height: 2em;
+    height: 2em;
+    border-left: 1px solid lightgray;
+    margin-top: 1px;
+}
+
+#entries-table tr.odd {
+
+}
+
+#entries-table tr.even {
+
+}
+
+#entries-table td {
+    border-left: 1px solid lightgray;
+    border-top: 1px solid lightgray;
+    padding: .5em 1em;
+}
+
+#entries-table tr:first-child td {
+    border-top: none;
+}
+
+#entries-table td.time, #entries-table td.sample {
+    text-align: center;
+}
+
+#entries-table td.mean {
+    border-right: none;
+    padding-right: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+#entries-table td.sem {
+    border-left: none;
+    padding-left: 0;
+
+    white-space: nowrap;
+}
+
+#entries-table .sem::before {
+    content: ' ± ';
+    white-space: pre;
+}
+
+#plot-container {
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    right: 0;
+    padding: 1rem 2rem;
+    bottom: 0;
+}
+
+#plot-area {
+    margin: 0 auto;
+    max-width: 80rem;
+    height: 100%;
+}
