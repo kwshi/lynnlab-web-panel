@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
+    "recharts": "^1.0.0-beta.10",
+    "style-loader": "^0.21.0",
+    "victory": "^0.26.1",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^2.1.5"
+  }
+}
