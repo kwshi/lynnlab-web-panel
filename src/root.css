@@ -14,7 +14,7 @@ body {
     top: 0;
     bottom: 0;
     width: 20rem;
-    background-color: teal;
+    background-color: steelblue;
     color: white;
     text-align: right;
 }
@@ -27,17 +27,25 @@ body {
 }
 
 #navigation-bar li {
+    position: relative;
+    transition: background-color .1s linear;
+}
+
+#navigation-bar a {
     padding: 1em 1em;
-    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    outline: none;
 }
 
 #navigation-bar li:hover {
-    background-color: darkcyan;
+    background-color: dodgerblue;
 }
 
 
 #navigation-bar li.active {
-    background-color: lightseagreen;
+    background-color: deepskyblue;
 }
 
 #main-panel {
@@ -50,15 +58,21 @@ body {
     margin-left: 20rem;
 }
 
-
-.toolbar {
+.main-panel-box {
+    display: flex;
+    flex-direction: column;
     position: absolute;
+    top: 0;
+    bottom: 0;
     right: 0;
     left: 0;
-    padding: 1rem 2rem;
-    height: 2em;
-    line-height: 2em;
+}
+
+
+.toolbar {
+    padding: 1rem 1rem;
     background: whitesmoke;
+    display: flex;
 }
 
 .toolbar label {
@@ -67,13 +81,20 @@ body {
     font-weight: 500;
 }
 
-#entries-container {
-    position: absolute;
+.toolbar input {
+    margin: 0;
+    padding: 0;
+    outline: none;
+}
+
+.container {
     margin: 1rem;
-    top: 4rem;
-    bottom: 0;
-    right: 0;
-    left: 0;
+    position: relative;
+    height: 0;
+    flex-grow: 1;
+}
+
+#entries-container {
     font-size: 75%;
 }
 
@@ -168,16 +189,37 @@ body {
 }
 
 #plot-container {
-    position: absolute;
-    top: 4rem;
-    left: 0;
-    right: 0;
-    padding: 1rem 2rem;
-    bottom: 0;
 }
 
-#plot-area {
+.plot-area {
     margin: 0 auto;
-    max-width: 80rem;
+    max-width: 1200px;
     height: 100%;
+}
+
+#plot-channels-container {
+    column-count: 2;
+    display: inline-block;
+}
+
+#plot-channels-container ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+#plot-channels-container li {
+
+}
+
+#plot-toolbar span.checkbox-label {
+
+    margin-right: 1em;
+    font-weight: bold;
+    font-size: .9em;
+}
+
+.toolbar .input-section {
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
 }

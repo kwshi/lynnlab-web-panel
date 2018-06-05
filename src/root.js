@@ -1,26 +1,61 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import DataPlot from './DataLinePlot.js';
+import DataLinePlot from './DataLinePlot.js';
 import DataLog from './DataLog.js';
+import DataBarPlot from './DataBarPlot.js';
 import './root.css';
 
+const apps = [
+    'data-log',
+    'data-plot-singles',
+    'data-plot-coincidences',
+    'data-bar-singles',
+    'data-bar-coincidences',
+];
+
+const appNames = {
+    'data-log': 'data log',
+    'data-plot-singles': 'singles plot',
+    'data-plot-coincidences': 'coincidences plot',
+    'data-bar-singles': 'singles bar plot',
+    'data-bar-coincidences': 'coincidences bar plot',
+};
+
+function getCurrentApp() {
+    return window.location.hash.substring(1);
+}
+
+if (!apps.includes(getCurrentApp())) {
+    window.location = '#' + apps[0];
+}
 
 class Root extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            app: 'data-plot',
-            dataLog: [],
+            app: 'data-bar-coincidences',
+            log: [],
+            showEntries: 100,
+            showChannels: {
+                0: true, 1: true, 2: false, 3: false,
+                4: true, 5: false, 6: false, 7: false
+            },
+            plotEntries: 100,
+            showErrorbars: false,
         };
-
+        
+        this.updateShowEntries = this.updateShowEntries.bind(this);
+        this.updateShowChannels = this.updateShowChannels.bind(this);
+        this.updatePlotEntries = this.updatePlotEntries.bind(this);
+        this.updateShowErrorbars = this.updateShowErrorbars.bind(this);
     }
 
     componentDidMount() {
-
-        this.ws = new WebSocket('ws://'+location.host+'/ws');
+        
+        this.ws = new window.WebSocket('ws://'+window.location.host+'/ws');
 
         this.messageReceived = messageBundle => {
-            let dataLog = this.state.dataLog;
+            let log = this.state.log;
             let message = JSON.parse(messageBundle.data);
 
             if (message.type == 'data-log' || message.type == 'data-dump') {
@@ -29,13 +64,13 @@ class Root extends React.Component {
                 for (let i = 0; i < message.payload.length; ++i) {
                     let dataEntry = message.payload[i];
                     dataEntry.time = new Date(dataEntry.time);
-                    dataLog.push(dataEntry);
+                    log = [...log, dataEntry];
                 }
                 
             }
 
             
-            this.setState({dataLog: dataLog});
+            this.setState({log: log});
             
         };
 
@@ -56,45 +91,126 @@ class Root extends React.Component {
         this.setState({app: app});
     }
 
-    render() {
-        let activeClass = app => this.state.app == app ? 'active' : 'inactive';
-
-        let app = <div></div>;
-        if (this.state.app == 'data-log') {
-            app = <DataLog log={this.state.dataLog}/>;
-        } else if (this.state.app == 'data-plot') {
-            app = <DataPlot log={this.state.dataLog}/>;
+    updateShowEntries(event) {
+        let value = event.target.value;
+        if (value < 1 || value > 500) {
+            return;
         }
+        this.setState({showEntries: value});
+    };
 
+    updatePlotEntries(event) {
+        let value = event.target.value;
+        if (value < 1 || value > 500) {
+            return;
+        }
+        this.setState({plotEntries: value});
+    };
 
-        return (
-            <div>
-              <div id="navigation-bar">
-                <ul>
-                  <li className={activeClass('data-log')}
-                      onClick={() => this.selectApp('data-log')}>Live data log</li>
-                  <li className={activeClass('data-plot')}
-                      onClick={() => this.selectApp('data-plot')}>Live plots</li>
-                  <li className={activeClass('motor')}
-                      onClick={() => this.selectApp('motor')}>Motor controller</li>
-                  <li className={activeClass('data-record')}
-                      onClick={() => this.selectApp('data-record')}>Record data</li>
-                  <li className={activeClass('scripts')}
-                      onClick={() => this.selectApp('scripts')}>Automated scripts</li>
-                </ul>
-              </div>
-              <div id="main-panel">
-                {app}
-              </div>
-            </div>
-        );
+    updateShowChannels(event) {
+        let showChannels = Object.assign(this.state.showChannels,
+                                         {[event.target.name]: event.target.checked});
+        this.setState({showChannels: showChannels});
     }
+
+    updateShowErrorbars(event) {
+        this.setState({showErrorbars: event.target.checked});
+    }
+    
+    render() {
+
+        let app;
+        switch (getCurrentApp()) {
+        case 'data-log':
+            app = (
+                <DataLog
+                  log={this.state.log}
+                  showEntries={this.state.showEntries}
+                  updateShowEntries={this.updateShowEntries}/>
+            );
+            break;
+        case 'data-plot-singles':
+            app = (
+                <DataLinePlot
+                  log={this.state.log}
+                  showChannels={this.state.showChannels}
+                  channels={[0, 1, 2, 3]}
+                  toggleChannel={this.updateShowChannels}
+                  plotEntries={this.state.plotEntries}
+                  updatePlotEntries={this.updatePlotEntries}
+                  showErrorbars={this.state.showErrorbars}
+                  updateShowErrorbars={this.updateShowErrorbars}/>
+            );
+                break;
+                case 'data-plot-coincidences':
+                app = (
+                    <DataLinePlot
+                      log={this.state.log}
+                      showChannels={this.state.showChannels}
+                      channels={[4, 5, 6, 7]}
+                      toggleChannel={this.updateShowChannels}
+                      plotEntries={this.state.plotEntries}
+                      updatePlotEntries={this.updatePlotEntries}
+                      showErrorbars={this.state.showErrorbars}
+                      updateShowErrorbars={this.updateShowErrorbars}/>
+                );
+            break;
+        case 'data-bar-singles':
+            app = (
+                <DataBarPlot
+                  log={this.state.log}
+                  channels={[0, 1, 2, 3]}
+                  showErrorbars={this.state.showErrorbars}
+                  updateShowErrorbars={this.updateShowErrorbars}/>
+            );
+            break;
+        case 'data-bar-coincidences':
+                app = (
+                    <DataBarPlot
+                      log={this.state.log}
+                      channels={[4, 5, 6, 7]}
+                      showErrorbars={this.state.showErrorbars}
+                      updateShowErrorbars={this.updateShowErrorbars}/>
+                );
+                break;
+            default:
+                app = <div></div>;
+            }
+
+
+            let menuItems = apps.map(app => (
+                <li key={app}
+                    className={getCurrentApp() == app ? 'active' : 'inactive'}>
+                  <a href={'#' + app}>
+                    {appNames[app]}
+                  </a>
+                </li>
+            ));
+
+            return (
+                <div>
+                  <div id="navigation-bar">
+                    <ul>
+                      {menuItems}
+                    </ul>
+                  </div>
+                  <div id="main-panel">
+                    {app}
+                  </div>
+                </div>
+            );
+        }
 }
 
+function render() {
+    ReactDOM.render(
+        <Root/>,
+        document.getElementById('root'),
+    );
 
+}
 
-ReactDOM.render(
-    <Root/>,
-    document.getElementById('root'),
-);
+window.addEventListener('hashchange', render);
+
+render();
 
