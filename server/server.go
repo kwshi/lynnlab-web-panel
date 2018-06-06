@@ -3,23 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
+	"net/http"
 )
-
 
 type Message struct {
 	Type    string      `json:"type"`
 	Payload interface{} `json:"payload"`
 }
 
-
 var upgrader = websocket.Upgrader{}
 var clients = make(map[*websocket.Conn]bool)
 var dataLog = make([]*DataEntry, 0)
 var ch = make(chan []*DataEntry)
-
 
 func ws(c echo.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
@@ -35,7 +32,7 @@ func ws(c echo.Context) error {
 	} else {
 		ch <- dataLog[len(dataLog)-500:]
 	}
-	
+
 	return nil
 
 }
@@ -57,7 +54,7 @@ func hub() {
 			ch <- []*DataEntry{entry}
 		}
 	}()
-	
+
 	for {
 		entries := <-ch
 		js, err := json.Marshal(&Message{
@@ -91,7 +88,7 @@ func dumpCsv(c echo.Context) error {
 
 func main() {
 	e := echo.New()
-	
+
 	e.File("/", "../client/root.html")
 	e.Static("/static", "../static")
 	e.GET("/ws", ws)
@@ -99,7 +96,6 @@ func main() {
 	e.GET("/dump/csv", dumpCsv)
 
 	go hub()
-	
+
 	e.Logger.Fatal(e.Start(":5000"))
 }
-

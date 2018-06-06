@@ -1,26 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"github.com/tarm/serial"
 	"bufio"
 	"errors"
+	"fmt"
+	"github.com/tarm/serial"
 	"gonum.org/v1/gonum/stat"
 	"math"
 	"time"
 )
 
-
-
 type FPGACCU struct {
 	connection *serial.Port
-	reader *bufio.Reader
-	sample int
+	reader     *bufio.Reader
+	sample     int
 }
 
 type Packet [8]int
 type Packets []*Packet
-
 
 func NewFPGACCU(address string) (*FPGACCU, error) {
 	config := &serial.Config{
@@ -31,14 +28,13 @@ func NewFPGACCU(address string) (*FPGACCU, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &FPGACCU{
 		connection: connection,
-		reader: bufio.NewReader(connection),
-		sample: 0,
+		reader:     bufio.NewReader(connection),
+		sample:     0,
 	}, nil
 }
-
 
 // deserialize (little-endian) byte-wise representation of number
 func deserialize(digits []byte) int {
@@ -61,22 +57,19 @@ func (ccu *FPGACCU) ReadPacket() (*Packet, error) {
 	if len(packetBytes) != 41 {
 		return nil, errors.New("incorrect number of bytes given before termination")
 	}
-	
+
 	var packet Packet
 	for i := range packet {
-		packet[i] = deserialize(packetBytes[5*i:5*(i+1)])
+		packet[i] = deserialize(packetBytes[5*i : 5*(i+1)])
 	}
-	
+
 	return &packet, nil
 }
-
 
 func (ccu *FPGACCU) Flush() error {
 	_, err := ccu.reader.ReadBytes(0xff)
 	return err
 }
-
-
 
 func (ccu *FPGACCU) ReadPackets(n int) (Packets, error) {
 	packets := make(Packets, n)
@@ -89,7 +82,6 @@ func (ccu *FPGACCU) ReadPackets(n int) (Packets, error) {
 	}
 	return packets, nil
 }
-
 
 func summarize(values []float64) *Stat {
 
@@ -132,10 +124,10 @@ func (ccu *FPGACCU) ReadEntry() (*DataEntry, error) {
 
 	return &DataEntry{
 		Sample: ccu.sample,
-		Time: time.Now(),
-		Data: data,
+		Time:   time.Now(),
+		Data:   data,
 	}, nil
-	
+
 }
 
 func main_test() {
@@ -146,11 +138,10 @@ func main_test() {
 		fmt.Println("error", err)
 		return
 	}
-	
+
 	ccu.Flush()
 	for i := 0; i < 50; i++ {
 		fmt.Println(ccu.ReadPacket())
 	}
 
-	
 }

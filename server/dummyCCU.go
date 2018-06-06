@@ -1,21 +1,21 @@
 package main
 
 import (
+	"gonum.org/v1/gonum/stat"
 	"math"
 	"math/rand"
-	"gonum.org/v1/gonum/stat"
 	"time"
 )
 
 type DummyCCU struct {
-	rand *rand.Rand
+	rand   *rand.Rand
 	sample int
 }
 
 func NewDummyCCU(seed int64) (*DummyCCU, error) {
 	r := rand.New(rand.NewSource(seed))
 	return &DummyCCU{
-		rand: r,
+		rand:   r,
 		sample: 0,
 	}, nil
 }
@@ -39,10 +39,10 @@ func (ccu *DummyCCU) ReadEntry() (*DataEntry, error) {
 		mean, sem := ccu.randomSummary(100)
 		data[i] = &Stat{mean, sem}
 	}
-	
+
 	return &DataEntry{
 		Sample: ccu.sample,
-		Time: time.Now(),
-		Data: &data,
+		Time:   time.Now(),
+		Data:   &data,
 	}, nil
 }

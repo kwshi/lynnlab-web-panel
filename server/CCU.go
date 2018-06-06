@@ -1,15 +1,14 @@
 package main
 
 import (
-	"time"
-	"strings"
 	"fmt"
+	"strings"
+	"time"
 )
 
 type CCU interface {
 	ReadEntry() (*DataEntry, error)
 }
-
 
 type Stat struct {
 	Mean float64 `json:"mean"`
@@ -19,9 +18,9 @@ type Stat struct {
 type Data [8]*Stat
 
 type DataEntry struct {
-	Sample int         `json:"sample"`
-	Time   time.Time   `json:"time"`
-	Data   *Data `json:"data"`
+	Sample int       `json:"sample"`
+	Time   time.Time `json:"time"`
+	Data   *Data     `json:"data"`
 }
 
 func (entry *DataEntry) String() string {

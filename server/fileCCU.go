@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/csv"
-	"strconv"
-	"os"
-	"time"
 	"io"
+	"os"
+	"strconv"
+	"time"
 )
 
 type FileCCU struct {
-	file *os.File
+	file   *os.File
 	reader *csv.Reader
 }
 
@@ -26,7 +26,7 @@ func NewFileCCU(path string) (*FileCCU, error) {
 	}
 
 	return &FileCCU{
-		file: file,
+		file:   file,
 		reader: reader,
 	}, nil
 }
@@ -53,7 +53,7 @@ func (ccu *FileCCU) ReadEntry() (*DataEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	t := time.Unix(0, int64(unix * 1e9))
+	t := time.Unix(0, int64(unix*1e9))
 
 	var data Data
 	for i := range data {
@@ -70,4 +70,3 @@ func (ccu *FileCCU) ReadEntry() (*DataEntry, error) {
 
 	return &DataEntry{sample, t, &data}, nil
 }
-
