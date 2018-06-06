@@ -42,12 +42,33 @@ class Root extends React.Component {
             },
             plotEntries: 100,
             showErrorbars: false,
+            barRangeSinglesAuto: false,
+            barRangeSinglesMax: 100000,
+            barRangeCoincidencesAuto: false,
+            barRangeCoincidencesMax: 2000,
+            plotRangeSinglesAuto: false,
+            plotRangeSinglesMin: 0,
+            plotRangeSinglesMax: 100000,
+            plotRangeCoincidencesAuto: false,
+            plotRangeCoincidencesMin: 0,
+            plotRangeCoincidencesMax: 2000,
         };
         
         this.updateShowEntries = this.updateShowEntries.bind(this);
         this.updateShowChannels = this.updateShowChannels.bind(this);
         this.updatePlotEntries = this.updatePlotEntries.bind(this);
         this.updateShowErrorbars = this.updateShowErrorbars.bind(this);
+        this.updateBarRangeSinglesAuto = this.updateBarRangeSinglesAuto.bind(this);
+        this.updateBarRangeSinglesMax = this.updateBarRangeSinglesMax.bind(this);
+        this.updateBarRangeCoincidencesAuto = this.updateBarRangeCoincidencesAuto.bind(this);
+        this.updateBarRangeCoincidencesMax = this.updateBarRangeCoincidencesMax.bind(this);
+
+        this.updatePlotRangeSinglesAuto = this.updatePlotRangeSinglesAuto.bind(this);
+        this.updatePlotRangeSinglesMin = this.updatePlotRangeSinglesMin.bind(this);
+        this.updatePlotRangeSinglesMax = this.updatePlotRangeSinglesMax.bind(this);
+        this.updatePlotRangeCoincidencesAuto = this.updatePlotRangeCoincidencesAuto.bind(this);
+        this.updatePlotRangeCoincidencesMin = this.updatePlotRangeCoincidencesMin.bind(this);
+        this.updatePlotRangeCoincidencesMax = this.updatePlotRangeCoincidencesMax.bind(this);
     }
 
     componentDidMount() {
@@ -58,11 +79,9 @@ class Root extends React.Component {
             let log = this.state.log;
             let message = JSON.parse(messageBundle.data);
 
-            if (message.type == 'data-log' || message.type == 'data-dump') {
-                
-                message.payload.time = Date(message.payload.time);
-                for (let i = 0; i < message.payload.length; ++i) {
-                    let dataEntry = message.payload[i];
+            if (message.type == 'log') {
+
+                for (let dataEntry of message.payload) {
                     dataEntry.time = new Date(dataEntry.time);
                     log = [...log, dataEntry];
                 }
@@ -116,6 +135,77 @@ class Root extends React.Component {
     updateShowErrorbars(event) {
         this.setState({showErrorbars: event.target.checked});
     }
+
+    updateBarRangeSinglesAuto(event) {
+        if (!event.target.checked) {
+            return;
+        }
+        this.setState({barRangeSinglesAuto: !!event.target.value});
+    }
+
+    updateBarRangeSinglesMax(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({barRangeSinglesMax: value});
+    }
+
+    updateBarRangeCoincidencesAuto(event) {
+        if (!event.target.checked) {
+            return;
+        }
+        this.setState({barRangeCoincidencesAuto: !!event.target.value});
+    }
+
+    updateBarRangeCoincidencesMax(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({barRangeCoincidencesMax: value});
+    }
+
+    updatePlotRangeSinglesAuto(event) {
+        if (!event.target.checked) {
+            return;
+        }
+        this.setState({plotRangeSinglesAuto: !!event.target.value});
+    }
+    updatePlotRangeSinglesMin(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({plotRangeSinglesMin: value});
+    }
+    updatePlotRangeSinglesMax(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({plotRangeSinglesMax: value});
+    }
+    updatePlotRangeCoincidencesAuto(event) {
+        if (!event.target.checked) {
+            return;
+        }
+        this.setState({plotRangeCoincidencesAuto: !!event.target.value});
+    }
+    updatePlotRangeCoincidencesMin(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({plotRangeCoincidencesMin: value});
+    }
+    updatePlotRangeCoincidencesMax(event) {
+        let value = event.target.value;
+        if (value < 0) {
+            return;
+        }
+        this.setState({plotRangeCoincidencesMax: value});
+    }
     
     render() {
 
@@ -139,21 +229,33 @@ class Root extends React.Component {
                   plotEntries={this.state.plotEntries}
                   updatePlotEntries={this.updatePlotEntries}
                   showErrorbars={this.state.showErrorbars}
-                  updateShowErrorbars={this.updateShowErrorbars}/>
+                  updateShowErrorbars={this.updateShowErrorbars}
+                  rangeAuto={this.state.plotRangeSinglesAuto}
+                  rangeMin={this.state.plotRangeSinglesMin}
+                  rangeMax={this.state.plotRangeSinglesMax}
+                  updateRangeAuto={this.updatePlotRangeSinglesAuto}
+                  updateRangeMin={this.updatePlotRangeSinglesMin}
+                  updateRangeMax={this.updatePlotRangeSinglesMax}/>
             );
-                break;
-                case 'data-plot-coincidences':
-                app = (
-                    <DataLinePlot
-                      log={this.state.log}
-                      showChannels={this.state.showChannels}
-                      channels={[4, 5, 6, 7]}
-                      toggleChannel={this.updateShowChannels}
-                      plotEntries={this.state.plotEntries}
-                      updatePlotEntries={this.updatePlotEntries}
-                      showErrorbars={this.state.showErrorbars}
-                      updateShowErrorbars={this.updateShowErrorbars}/>
-                );
+            break;
+        case 'data-plot-coincidences':
+            app = (
+                <DataLinePlot
+                  log={this.state.log}
+                  showChannels={this.state.showChannels}
+                  channels={[4, 5, 6, 7]}
+                  toggleChannel={this.updateShowChannels}
+                  plotEntries={this.state.plotEntries}
+                  updatePlotEntries={this.updatePlotEntries}
+                  showErrorbars={this.state.showErrorbars}
+                  updateShowErrorbars={this.updateShowErrorbars}
+                  rangeAuto={this.state.plotRangeCoincidencesAuto}
+                  rangeMin={this.state.plotRangeCoincidencesMin}
+                  rangeMax={this.state.plotRangeCoincidencesMax}
+                  updateRangeAuto={this.updatePlotRangeCoincidencesAuto}
+                  updateRangeMin={this.updatePlotRangeCoincidencesMin}
+                  updateRangeMax={this.updatePlotRangeCoincidencesMax}/>
+            );
             break;
         case 'data-bar-singles':
             app = (
@@ -161,45 +263,53 @@ class Root extends React.Component {
                   log={this.state.log}
                   channels={[0, 1, 2, 3]}
                   showErrorbars={this.state.showErrorbars}
-                  updateShowErrorbars={this.updateShowErrorbars}/>
+                  updateShowErrorbars={this.updateShowErrorbars}
+                  rangeAuto={this.state.barRangeSinglesAuto}
+                  updateRangeAuto={this.updateBarRangeSinglesAuto}
+                  rangeMax={this.state.barRangeSinglesMax}
+                  updateRangeMax={this.updateBarRangeSinglesMax}/>
             );
             break;
         case 'data-bar-coincidences':
-                app = (
-                    <DataBarPlot
-                      log={this.state.log}
-                      channels={[4, 5, 6, 7]}
-                      showErrorbars={this.state.showErrorbars}
-                      updateShowErrorbars={this.updateShowErrorbars}/>
-                );
-                break;
-            default:
-                app = <div></div>;
-            }
+            app = (
+                <DataBarPlot
+                  log={this.state.log}
+                  channels={[4, 5, 6, 7]}
+                  showErrorbars={this.state.showErrorbars}
+                  updateShowErrorbars={this.updateShowErrorbars}
+                  rangeAuto={this.state.barRangeCoincidencesAuto}
+                  updateRangeAuto={this.updateBarRangeCoincidencesAuto}
+                  rangeMax={this.state.barRangeCoincidencesMax}
+                  updateRangeMax={this.updateBarRangeCoincidencesMax}/>
+        );
+        break;
+        default:
+        app = <div></div>;
+    }
 
 
-            let menuItems = apps.map(app => (
-                <li key={app}
-                    className={getCurrentApp() == app ? 'active' : 'inactive'}>
-                  <a href={'#' + app}>
-                    {appNames[app]}
-                  </a>
-                </li>
-            ));
+    let menuItems = apps.map(app => (
+        <li key={app}
+            className={getCurrentApp() == app ? 'active' : 'inactive'}>
+          <a href={'#' + app}>
+            {appNames[app]}
+          </a>
+        </li>
+    ));
 
-            return (
-                <div>
-                  <div id="navigation-bar">
-                    <ul>
-                      {menuItems}
-                    </ul>
-                  </div>
-                  <div id="main-panel">
-                    {app}
-                  </div>
-                </div>
-            );
-        }
+    return (
+        <div>
+          <div id="navigation-bar">
+            <ul>
+              {menuItems}
+            </ul>
+          </div>
+          <div id="main-panel">
+            {app}
+          </div>
+        </div>
+    );
+}
 }
 
 function render() {

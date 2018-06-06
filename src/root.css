@@ -1,6 +1,6 @@
 
 :root {
-    font-family: Roboto, sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
@@ -73,12 +73,14 @@ body {
     padding: 1rem 1rem;
     background: whitesmoke;
     display: flex;
+    flex-wrap: wrap;
+    line-height: 2em;
+    justify-content: space-between;
 }
 
 .toolbar label {
     margin-right: 1em;
-    font-size: .9em;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .toolbar input {
@@ -95,7 +97,7 @@ body {
 }
 
 #entries-container {
-    font-size: 75%;
+    font-size: 1em;
 }
 
 #entries-header {
@@ -184,8 +186,10 @@ body {
 }
 
 #entries-table .sem::before {
-    content: ' ± ';
-    white-space: pre;
+    content: '±';
+    font-size: 1em;
+    margin: 0 .25em;
+
 }
 
 #plot-container {
@@ -215,11 +219,9 @@ body {
 
     margin-right: 1em;
     font-weight: bold;
-    font-size: .9em;
 }
 
 .toolbar .input-section {
-    margin-right: 1rem;
     display: flex;
     align-items: center;
 }

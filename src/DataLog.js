@@ -26,7 +26,7 @@ export default class DataLog extends React.Component {
             return (
                 <DataLogEntry key={entry.sample}
                               sample={entry.sample} time={entry.time}
-                              mean={entry.mean} sem={entry.sem}/>
+                              data={entry.data}/>
             );
         });
 
@@ -107,10 +107,10 @@ class DataLogEntry extends React.Component {
         for (let i = 0; i < 8; ++i) {
             values[i] = Array(2);
             values[i][0] = (
-                <td key={"mean" + i} className="mean">{this.props.mean[i].toFixed(2)}</td>
+                <td key={"mean" + i} className="mean">{this.props.data[i].mean.toFixed(2)}</td>
             );
             values[i][1] = (
-                <td key={"sem" + i} className="sem">{this.props.sem[i].toFixed(2)}</td>
+                <td key={"sem" + i} className="sem">{this.props.data[i].sem.toFixed(2)}</td>
             );
         }
 

@@ -19,10 +19,29 @@ export default class DataBarPlot extends React.Component {
                   <input type="checkbox" name="show-errorbars" checked={this.props.showErrorbars}
                          onChange={this.props.updateShowErrorbars}/>
                 </span>
+                <span className="input-section">
+                  <label>maximum range:</label>
+                  <input type="radio" name="bar-range" value="1" checked={this.props.rangeAuto}
+                         onChange={this.props.updateRangeAuto}/>
+                  <label>auto</label>
+                  <input type="radio" name="bar-range" value="" checked={!this.props.rangeAuto}
+                         onChange={this.props.updateRangeAuto}/>
+                  <label>fixed</label>
+                  <input type="number" name="bar-range-max" value={this.props.rangeMax}
+                         onChange={this.props.updateRangeMax}
+                         disabled={this.props.rangeAuto}/>
+                </span>
               </div>
               <div id="bar-container" className="container">
                 <div className="plot-area">
-                  <V.VictoryChart theme={plot.theme} domainPadding={{x: 25}}>
+                  <V.VictoryChart theme={plot.theme} domainPadding={{x: 25}}
+                                  domain={{
+                                      y: (
+                                          this.props.rangeAuto ?
+                                              undefined :
+                                              [0, this.props.rangeMax]
+                                      ),
+                                  }}>
                     <V.VictoryAxis crossAxis tickValues={ticks}
                                    label="channel"
                                    style={{
@@ -39,7 +58,7 @@ export default class DataBarPlot extends React.Component {
                       data={this.props.channels.map(channel => ({
                           x: plot.channelLabels[channel],
                           y: this.props.log.length > 0 ?
-                              this.props.log[this.props.log.length-1].mean[channel] :
+                              this.props.log[this.props.log.length-1].data[channel].mean :
                               0,
                       }))}/>
                       {
@@ -48,17 +67,17 @@ export default class DataBarPlot extends React.Component {
                                 data={this.props.channels.map(channel => ({
                                     x: plot.channelLabels[channel],
                                     y: this.props.log.length > 0 ?
-                                        this.props.log[this.props.log.length-1].mean[channel] :
+                                        this.props.log[this.props.log.length-1].data[channel].mean :
                                         0,
                                     errorY: this.props.log.length > 0 ?
-                                        this.props.log[this.props.log.length-1].sem[channel] :
+                                        this.props.log[this.props.log.length-1].data[channel].sem :
                                         0,
                                 }))}/>
                           ) : false
                       }
             </V.VictoryChart>
                 </div>
-              </div>
+                </div>
             </div>
         );
     }
