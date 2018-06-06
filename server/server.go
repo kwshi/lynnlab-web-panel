@@ -3,21 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	//"io/ioutil"
-	"time"
-	"math/rand"
-	//"bytes"
 	"net/http"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
-type DataEntry struct {
-	Sample int        `json:"sample"`
-	Time   time.Time  `json:"time"`
-	Mean   [8]float64 `json:"mean"`
-	Sem    [8]float64 `json:"sem"`
-}
 
 type Message struct {
 	Type    string      `json:"type"`
@@ -31,31 +21,6 @@ var dataLog = make([]*DataEntry, 0)
 var ch = make(chan []*DataEntry)
 
 
-func dummyGenerator(c chan []*DataEntry) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for s := 1; ; s++ {
-		t := time.Now()
-		mean := [8]float64{}
-		sem := [8]float64{}
-
-		for i := range mean {
-			m, s := genRanDumb(r, 100)
-			mean[i] = m
-			sem[i] = s
-		}
-
-		entry := &DataEntry{
-			Sample: s,
-			Time:   t,
-			Mean:   mean,
-			Sem:    sem,
-		}
-		dataLog = append(dataLog, entry)
-		c <- []*DataEntry{entry}
-		time.Sleep(1000 * time.Millisecond)
-	}
-}
-
 func ws(c echo.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -65,18 +30,39 @@ func ws(c echo.Context) error {
 	fmt.Println("joined")
 	clients[ws] = true
 
-	ch <- dataLog
+	if len(dataLog) < 500 {
+		ch <- dataLog
+	} else {
+		ch <- dataLog[len(dataLog)-500:]
+	}
+	
 	return nil
 
 }
 
 func hub() {
-	go dummyGenerator(ch)
+	ccu, err := NewDummyCCU(0)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	stream := CCUStream{ccu}
+	go func() {
+		c := make(chan *DataEntry)
+		go stream.Stream(c)
+
+		for {
+			entry := <-c
+			dataLog = append(dataLog, entry)
+			ch <- []*DataEntry{entry}
+		}
+	}()
+	
 	for {
-		entry := <-ch
+		entries := <-ch
 		js, err := json.Marshal(&Message{
-			Type:    "data-log",
-			Payload: entry,
+			Type:    "log",
+			Payload: entries,
 		})
 		if err != nil {
 			continue
@@ -112,7 +98,8 @@ func main() {
 	e.GET("/dump/json", dumpJson)
 	e.GET("/dump/csv", dumpCsv)
 
-		go hub()
-		
-		e.Logger.Fatal(e.Start(":5000"))
-	}
+	go hub()
+	
+	e.Logger.Fatal(e.Start(":5000"))
+}
+
