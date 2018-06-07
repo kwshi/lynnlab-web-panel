@@ -127,7 +127,8 @@ class Root extends React.Component {
     };
 
     updateShowChannels(event) {
-        let showChannels = Object.assign(this.state.showChannels,
+        let showChannels = Object.assign({},
+                                         this.state.showChannels,
                                          {[event.target.name]: event.target.checked});
         this.setState({showChannels: showChannels});
     }
