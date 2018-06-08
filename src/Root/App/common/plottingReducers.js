@@ -19,16 +19,23 @@ export const plottingReducer = (actions, initial) => {
 
     const groupReducer = (group, initial) => {
 
+        const maxEntriesReducer = initial => (
+            (state = initial, action) => (
+                action.type == actions.SET_MAX_ENTRIES ?
+                    action.entries :
+                    state
+            )
+        );
+
         const showChannelsReducer = initial => (
             (state = initial, action) => {
-                if (action.type != actions.SET_SHOW_CHANNEL ||
-                    action.type != actions.RESET_SHOW_CHANNEL ||
-                    action.group != group) {
+                if (!(action.type == actions.SET_SHOW_CHANNEL ||
+                      action.type == actions.RESET_SHOW_CHANNEL)) {
                     return state;
                 }
 
                 switch (action.type) {
-                case actions.SET_SHOW_CHANNELS:
+                case actions.SET_SHOW_CHANNEL:
                     return {
                         ...state,
                         [action.channel]: action.enable,
@@ -43,7 +50,7 @@ export const plottingReducer = (actions, initial) => {
 
         const errorbarsReducer = initial => (
             (state = initial, action) => (
-                action.type == action.SET_ERRORBARS && action.group == group ?
+                action.type == actions.SET_ERRORBARS ?
                     action.enable :
                     state
             )
@@ -51,15 +58,15 @@ export const plottingReducer = (actions, initial) => {
 
         const rangeReducer = initial => {
             return (state = initial, action) => {
-                if (action.type != actions.SET_RANGE_AUTO ||
-                    action.type != actions.SET_RANGE_MIN ||
-                    action.type != actions.SET_RANGE_MAX ||
-                    action.type != actions.RESET_RANGE ||
+                if (!(action.type == actions.SET_RANGE_AUTO ||
+                      action.type == actions.SET_RANGE_MIN ||
+                      action.type == actions.SET_RANGE_MAX ||
+                      action.type == actions.RESET_RANGE) ||
                     action.group != group) {
                     return state;
                 }
                 
-                switch (action) {
+                switch (action.type) {
                 case actions.SET_RANGE_AUTO:
                     return {...state, auto: action.auto};
                 case actions.SET_RANGE_MIN:
@@ -75,6 +82,7 @@ export const plottingReducer = (actions, initial) => {
         };
         
         return Redux.combineReducers({
+            maxEntries: maxEntriesReducer(initial.maxEntries),
             showChannels: showChannelsReducer(initial.showChannels),
             errorbars: errorbarsReducer(initial.errorbars),
             range: rangeReducer(initial.range),

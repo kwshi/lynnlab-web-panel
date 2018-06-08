@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import * as ReactRedux from 'react-redux';
 import * as Redux from 'redux';
 import thunk from 'redux-thunk';
-import DataLinePlot from './App/DataPlot/DataLinePlot.js';
+import {App} from './App/App';
+import {DataPlot} from './App/DataPlot/DataPlot.js';
 import {DataLog} from './App/DataLog/DataLog.js';
 import DataBarPlot from './App/DataBar/DataBarPlot.js';
 import * as actions from './actions';
@@ -39,17 +40,6 @@ const appNames = {
   }
 */
 
-const App = ReactRedux.connect(
-    state => ({
-        log: state.log,
-        state: state.dataLog,
-    }),
-    dispatch => ({
-        on: {
-            setMaxEntries: entries => dispatch(actions.dataLog.setMaxEntries(entries)),
-        }
-    }),
-)(DataLog);
 
 class RootRedux extends React.Component {
     constructor(props) {
