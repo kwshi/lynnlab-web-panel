@@ -1,12 +1,22 @@
 
-const websocket = new window.WebSocket('ws://'+window.location.host+'/ws');
+import * as actions from './actions';
 
-websocket.addEventListener('open', () => {
-    console.log('connect');
+export default class WebsocketWrapper {
+    constructor(address) {
+        this.address = address;
+        this.websocket = new window.WebSocket(address);
+    }
 
-    websocket.addEventListener('message', () => {
-        console.log('message');
-    });
-});
+    listen(dispatch) {
+        this.websocket.addEventListener('open', () => {
+            console.log('connect');
 
+            this.websocket.addEventListener('message', message => {
+                dispatch(actions.receiveMessage(message));
+            });
+        });
 
+        
+
+    }
+}

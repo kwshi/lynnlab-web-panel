@@ -1,74 +1,68 @@
 import React from 'react';
 
+const columnKeys = [
+    'C0 (A)',
+    'C1 (B)',
+    'C2 (A\')',
+    'C3 (B\')',
+    'C4',
+    'C5',
+    'C6',
+    'C7',
+];
+
 
 export const DataLog = ({log, state, on}) => {
     const rows = log.slice(
-         state.showEntries > log.length ?
-             0 :
-             -state.showEntries
-     ).map(entry => {
-         return (
-             <DataLogEntry entry={entry}/>
-         );
-     });
-     
-     
-     return (
-         <div className="main-panel-box">
-           <div id="entries-options" className="toolbar">
-             <span className="input-section">
-               <label htmlFor="entries">maximum number of entries to show:</label>
-               <input name="entries" type="number"
-                      value={state.maxEntries}
-                      onChange={event => on.setMaxEntries(event.target.value)}/>
-             </span>
-           </div>
-           <div id="entries-container" className="container">
-             <div id="entries-header"></div>
-             <div id="entries-scroll">
-               <table id="entries-table">
-                 <thead>
-                   <tr>
-                     <th>
-                       <span>sample</span><div>sample</div>
-                     </th>
-                     <th>
-                       <span>time</span><div>time</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C0 (A)</span><div>C0 (A)</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C1 (B)</span><div>C1 (B)</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C2 (A')</span><div>C2 (A')</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C3 (B')</span><div>C3 (B')</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C4</span><div>C4</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C5</span><div>C5</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C6</span><div>C6</div>
-                     </th>
-                     <th colSpan="2">
-                       <span>C7</span><div>C7</div>
-                     </th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {rows}
-                 </tbody> 
-               </table>
-             </div>
-           </div>
-         </div>
-     );
+        state.maxEntries > log.length ?
+            0 :
+            -state.maxEntries
+    ).map(entry => {
+        return (
+            <DataLogEntry key={entry.sample} entry={entry}/>
+        );
+    });
+
+    const headers = columnKeys.map(column => (
+        <th colSpan="2" key={column}>
+          <span>{column}</span><div>{column}</div>
+        </th>
+    ));
+    
+    
+    return (
+        <div className="main-panel-box">
+          <div id="entries-options" className="toolbar">
+            <span className="input-section">
+              <label htmlFor="entries">maximum number of entries to show:</label>
+              <input name="entries" type="number"
+                     value={state.maxEntries}
+                     onChange={event => on.setMaxEntries(event.target.value)}/>
+            </span>
+          </div>
+          <div id="entries-container" className="container">
+            <div id="entries-header"></div>
+            <div id="entries-scroll">
+              <table id="entries-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <span>sample</span><div>sample</div>
+                    </th>
+                    <th>
+                      <span>time</span><div>time</div>
+                    </th>
+                    {headers}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows}
+                </tbody> 
+              </table>
+            </div>
+          </div>
+        </div>
+    );
 };
 
 
