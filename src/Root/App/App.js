@@ -27,12 +27,18 @@ const apps = {
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataPlot.setMaxEntries('SINGLES', entries)),
-            setErrorbars: enable => dispatch(actions.dataPlot.setErrorbars('SINGLES', enable)),
-            setRangeAuto: auto => dispatch(actions.dataPlot.setRangeAuto('SINGLES', auto)),
-            setShowChannel: (channel, enable) => dispatch(actions.dataPlot.setShowChannel(channel, enable)),
-            setRangeMin: value => dispatch(actions.dataPlot.setRangeMin('SINGLES', value)),
-            setRangeMax: value => dispatch(actions.dataPlot.setRangeMax('SINGLES', value)),
+            setMaxEntries: entries =>
+                dispatch(actions.dataPlot.singles.setMaxEntries(entries)),
+            setErrorbars: enable =>
+                dispatch(actions.dataPlot.singles.setErrorbars(enable)),
+            setRangeAuto: auto =>
+                dispatch(actions.dataPlot.singles.setRangeAuto(auto)),
+            setShowChannel: (channel, enable) =>
+                dispatch(actions.dataPlot.setShowChannel(channel, enable)),
+            setRangeMin: value =>
+                dispatch(actions.dataPlot.singles.setRangeMin(value)),
+            setRangeMax: value =>
+                dispatch(actions.dataPlot.singles.setRangeMax(value)),
         }}),
     )(DataPlot),
     DataPlotCoincidences: connect(
@@ -44,12 +50,12 @@ const apps = {
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataPlot.setMaxEntries('COINCIDENCES', entries)),
-            setErrorbars: enable => dispatch(actions.dataPlot.setErrorbars('COINCIDENCES', enable)),
-            setRangeAuto: auto => dispatch(actions.dataPlot.setRangeAuto('COINCIDENCES', auto)),
+            setMaxEntries: entries => dispatch(actions.dataPlot.coincidences.setMaxEntries(entries)),
+            setErrorbars: enable => dispatch(actions.dataPlot.coincidences.setErrorbars(enable)),
+            setRangeAuto: auto => dispatch(actions.dataPlot.coincidences.setRangeAuto(auto)),
             setShowChannel: (channel, enable) => dispatch(actions.dataPlot.setShowChannel(channel, enable)),
-            setRangeMin: value => dispatch(actions.dataPlot.setRangeMin('COINCIDENCES', value)),
-            setRangeMax: value => dispatch(actions.dataPlot.setRangeMax('COINCIDENCES', value)),
+            setRangeMin: value => dispatch(actions.dataPlot.coincidences.setRangeMin(value)),
+            setRangeMax: value => dispatch(actions.dataPlot.coincidences.setRangeMax(value)),
         }}),
     )(DataPlot),
     DataBarSingles: connect(
@@ -61,11 +67,11 @@ const apps = {
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataBar.setMaxEntries('SINGLES', entries)),
-            setErrorbars: enable => dispatch(actions.dataBar.setErrorbars('SINGLES', enable)),
-            setRangeAuto: auto => dispatch(actions.dataBar.setRangeAuto('SINGLES', auto)),
+            setMaxEntries: entries => dispatch(actions.dataBar.singles.setMaxEntries(entries)),
+            setErrorbars: enable => dispatch(actions.dataBar.singles.setErrorbars(enable)),
+            setRangeAuto: auto => dispatch(actions.dataBar.singles.setRangeAuto(auto)),
             setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
-            setRangeMax: value => dispatch(actions.dataBar.setRangeMax('SINGLES', value)),
+            setRangeMax: value => dispatch(actions.dataBar.singles.setRangeMax(value)),
         }}),
     )(DataBar),
     DataBarCoincidences: connect(
@@ -77,11 +83,11 @@ const apps = {
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataBar.setMaxEntries('COINCIDENCES', entries)),
-            setErrorbars: enable => dispatch(actions.dataBar.setErrorbars('COINCIDENCES', enable)),
-            setRangeAuto: auto => dispatch(actions.dataBar.setRangeAuto('COINCIDENCES', auto)),
+            setMaxEntries: entries => dispatch(actions.dataBar.coincidences.setMaxEntries(entries)),
+            setErrorbars: enable => dispatch(actions.dataBar.coincidences.setErrorbars(enable)),
+            setRangeAuto: auto => dispatch(actions.dataBar.coincidences.setRangeAuto(auto)),
             setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
-            setRangeMax: value => dispatch(actions.dataBar.setRangeMax('COINCIDENCES', value)),
+            setRangeMax: value => dispatch(actions.dataBar.coincidences.setRangeMax(value)),
         }}),
     )(DataBar),
 };

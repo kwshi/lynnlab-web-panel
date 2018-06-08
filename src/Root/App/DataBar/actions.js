@@ -7,11 +7,6 @@ export const SET_RANGE_AUTO = 'dataBar/SET_RANGE_AUTO';
 export const SET_RANGE_MAX = 'dataBar/SET_RANGE_MAX';
 export const RESET_RANGE = 'dataBar/RESET_RANGE';
 
-export const setMaxEntries = (group, entries) => ({
-    type: SET_MAX_ENTRIES,
-    group,
-    entries,
-});
 
 export const setShowChannel = (channel, enable) => ({
     type: SET_SHOW_CHANNEL,
@@ -19,30 +14,36 @@ export const setShowChannel = (channel, enable) => ({
     enable,
 });
 
-export const resetShowChannels = (group) => ({
-    type: RESET_SHOW_CHANNELS,
-    group,
+const actionGroup = group => ({
+    setMaxEntries: entries => ({
+        type: SET_MAX_ENTRIES,
+        group,
+        entries,
+    }),
+    resetShowChannels: () => ({
+        type: RESET_SHOW_CHANNELS,
+        group,
+    }),
+    setErrorbars: enable => ({
+        type: SET_ERRORBARS,
+        group,
+        enable,
+    }),
+    setRangeAuto: auto => ({
+        type: SET_RANGE_AUTO,
+        group,
+        auto,
+    }),
+    setRangeMax: value => ({
+        type: SET_RANGE_MAX,
+        group,
+        value,
+    }),
+    resetRange: () => ({
+        type: RESET_RANGE,
+        group,
+    }),
 });
 
-export const setErrorbars = (group, enable) => ({
-    type: SET_ERRORBARS,
-    group,
-    enable,
-});
-
-export const setRangeAuto = (group, auto) => ({
-    type: SET_RANGE_AUTO,
-    group,
-    auto,
-});
-
-export const setRangeMax = (group, value) => ({
-    type: SET_RANGE_MAX,
-    group,
-    value,
-});
-
-export const resetRange = (group) => ({
-    type: RESET_RANGE,
-    group,
-});
+export const singles = actionGroup('SINGLES');
+export const coincidences = actionGroup('COINCIDENCES');

@@ -3,20 +3,6 @@ import * as Redux from 'redux';
 
 export const plottingReducer = (actions, initial) => {
 
-    /*
-      const showChannelsReducer = actionType => (
-      (state = {
-      0: true, 1: true, 2: false, 3: false,
-      4: true, 5: false, 6: false, 7: false
-      }, action) => (
-      action.type == actionType ? {
-      ...state,
-      [action.channel]: action.enable,
-      } : state
-      )
-      );
-    */
-
     const groupReducer = (group, initial) => {
 
         const maxEntriesReducer = initial => (
