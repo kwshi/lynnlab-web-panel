@@ -16,36 +16,36 @@ export const setShowChannel = (channel, enable) => ({
 
 
 const actionGroup = group => ({
-    setMaxEntries: (group, entries) => ({
+    setMaxEntries: entries => ({
         type: SET_MAX_ENTRIES,
         group,
         entries,
     }),
-    resetShowChannels: (group) => ({
+    resetShowChannels: () => ({
         type: RESET_SHOW_CHANNELS,
         group,
     }),
-    setErrorbars: (group, enable) => ({
+    setErrorbars: (enable) => ({
         type: SET_ERRORBARS,
         group,
         enable,
     }),
-    setRangeAuto: (group, auto) => ({
+    setRangeAuto: (auto) => ({
         type: SET_RANGE_AUTO,
         group,
         auto,
     }),
-    setRangeMin: (group, value) => ({
+    setRangeMin: (value) => ({
         type: SET_RANGE_MIN,
         group,
         value,
     }),
-    setRangeMax: (group, value) => ({
+    setRangeMax: (value) => ({
         type: SET_RANGE_MAX,
         group,
         value,
     }),
-    resetRange: (group) => ({
+    resetRange: () => ({
         type: RESET_RANGE,
         group,
     }),
