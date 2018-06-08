@@ -1,6 +1,7 @@
 import {connect} from 'react-redux';
 import {DataLog} from './DataLog/DataLog';
 import {DataPlot} from './DataPlot/DataPlot';
+import {DataBar} from './DataBar/DataBar';
 import * as actions from './actions';
 import React from 'react';
 
@@ -51,11 +52,45 @@ const apps = {
             setRangeMax: value => dispatch(actions.dataPlot.setRangeMax('COINCIDENCES', value)),
         }}),
     )(DataPlot),
+    DataBarSingles: connect(
+        state => ({
+            log: state.log,
+            state: state.dataBar.singles,
+            props: {
+                channels: [0, 1, 2, 3],
+            },
+        }),
+        dispatch => ({on: {
+            setMaxEntries: entries => dispatch(actions.dataBar.setMaxEntries('SINGLES', entries)),
+            setErrorbars: enable => dispatch(actions.dataBar.setErrorbars('SINGLES', enable)),
+            setRangeAuto: auto => dispatch(actions.dataBar.setRangeAuto('SINGLES', auto)),
+            setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
+            setRangeMax: value => dispatch(actions.dataBar.setRangeMax('SINGLES', value)),
+        }}),
+    )(DataBar),
+    DataBarCoincidences: connect(
+        state => ({
+            log: state.log,
+            state: state.dataBar.coincidences,
+            props: {
+                channels: [4, 5, 6, 7],
+            },
+        }),
+        dispatch => ({on: {
+            setMaxEntries: entries => dispatch(actions.dataBar.setMaxEntries('COINCIDENCES', entries)),
+            setErrorbars: enable => dispatch(actions.dataBar.setErrorbars('COINCIDENCES', enable)),
+            setRangeAuto: auto => dispatch(actions.dataBar.setRangeAuto('COINCIDENCES', auto)),
+            setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
+            setRangeMax: value => dispatch(actions.dataBar.setRangeMax('COINCIDENCES', value)),
+        }}),
+    )(DataBar),
 };
 
 apps['data-log'] = apps.DataLog;
 apps['data-plot-singles'] = apps.DataPlotSingles;
 apps['data-plot-coincidences'] = apps.DataPlotCoincidences;
+apps['data-bar-singles'] = apps.DataBarSingles;
+apps['data-bar-coincidences'] = apps.DataBarCoincidences;
 
 const App_ = ({currentApp}) => {
     const SubApp = apps[currentApp];

@@ -7,9 +7,10 @@ export const SET_RANGE_AUTO = 'dataBar/SET_RANGE_AUTO';
 export const SET_RANGE_MAX = 'dataBar/SET_RANGE_MAX';
 export const RESET_RANGE = 'dataBar/RESET_RANGE';
 
-export const setMaxEntries = entries => ({
+export const setMaxEntries = (group, entries) => ({
     type: SET_MAX_ENTRIES,
-    entries
+    group,
+    entries,
 });
 
 export const setShowChannel = (channel, enable) => ({

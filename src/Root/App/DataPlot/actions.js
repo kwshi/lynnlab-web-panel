@@ -10,6 +10,7 @@ export const RESET_RANGE = 'dataPlot/RESET_RANGE';
 
 export const setMaxEntries = (group, entries) => ({
     type: SET_MAX_ENTRIES,
+    group,
     entries,
 });
 

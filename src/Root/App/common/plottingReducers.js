@@ -21,7 +21,7 @@ export const plottingReducer = (actions, initial) => {
 
         const maxEntriesReducer = initial => (
             (state = initial, action) => (
-                action.type == actions.SET_MAX_ENTRIES ?
+                action.type == actions.SET_MAX_ENTRIES && action.group == group ?
                     action.entries :
                     state
             )
@@ -50,7 +50,7 @@ export const plottingReducer = (actions, initial) => {
 
         const errorbarsReducer = initial => (
             (state = initial, action) => (
-                action.type == actions.SET_ERRORBARS ?
+                action.type == actions.SET_ERRORBARS && action.group == group ?
                     action.enable :
                     state
             )
