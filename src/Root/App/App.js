@@ -5,12 +5,11 @@ import {DataBar} from './DataBar/DataBar';
 import * as actions from './actions';
 import React from 'react';
 
-
 const apps = {
     DataLog: connect(
         state => ({
             log: state.log,
-            state: state.dataLog,
+            state: state.app.dataLog,
         }),
         dispatch => ({
             on: {
@@ -21,7 +20,7 @@ const apps = {
     DataPlotSingles: connect(
         state => ({
             log: state.log,
-            state: state.dataPlot.singles,
+            state: state.app.dataPlot.singles,
             props: {
                 channels: [0, 1, 2, 3],
             },
@@ -44,59 +43,69 @@ const apps = {
     DataPlotCoincidences: connect(
         state => ({
             log: state.log,
-            state: state.dataPlot.coincidences,
+            state: state.app.dataPlot.coincidences,
             props: {
                 channels: [4, 5, 6, 7],
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataPlot.coincidences.setMaxEntries(entries)),
-            setErrorbars: enable => dispatch(actions.dataPlot.coincidences.setErrorbars(enable)),
-            setRangeAuto: auto => dispatch(actions.dataPlot.coincidences.setRangeAuto(auto)),
-            setShowChannel: (channel, enable) => dispatch(actions.dataPlot.setShowChannel(channel, enable)),
-            setRangeMin: value => dispatch(actions.dataPlot.coincidences.setRangeMin(value)),
-            setRangeMax: value => dispatch(actions.dataPlot.coincidences.setRangeMax(value)),
+            setMaxEntries: entries =>
+                dispatch(actions.dataPlot.coincidences.setMaxEntries(entries)),
+            setErrorbars: enable =>
+                dispatch(actions.dataPlot.coincidences.setErrorbars(enable)),
+            setRangeAuto: auto =>
+                dispatch(actions.dataPlot.coincidences.setRangeAuto(auto)),
+            setShowChannel: (channel, enable) =>
+                dispatch(actions.dataPlot.setShowChannel(channel, enable)),
+            setRangeMin: value =>
+                dispatch(actions.dataPlot.coincidences.setRangeMin(value)),
+            setRangeMax: value =>
+                dispatch(actions.dataPlot.coincidences.setRangeMax(value)),
         }}),
     )(DataPlot),
     DataBarSingles: connect(
         state => ({
             log: state.log,
-            state: state.dataBar.singles,
+            state: state.app.dataBar.singles,
             props: {
                 channels: [0, 1, 2, 3],
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataBar.singles.setMaxEntries(entries)),
-            setErrorbars: enable => dispatch(actions.dataBar.singles.setErrorbars(enable)),
-            setRangeAuto: auto => dispatch(actions.dataBar.singles.setRangeAuto(auto)),
-            setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
-            setRangeMax: value => dispatch(actions.dataBar.singles.setRangeMax(value)),
+            setMaxEntries: entries =>
+                dispatch(actions.dataBar.singles.setMaxEntries(entries)),
+            setErrorbars: enable =>
+                dispatch(actions.dataBar.singles.setErrorbars(enable)),
+            setRangeAuto: auto =>
+                dispatch(actions.dataBar.singles.setRangeAuto(auto)),
+            setShowChannel: (channel, enable) =>
+                dispatch(actions.dataBar.setShowChannel(channel, enable)),
+            setRangeMax: value =>
+                dispatch(actions.dataBar.singles.setRangeMax(value)),
         }}),
     )(DataBar),
     DataBarCoincidences: connect(
         state => ({
             log: state.log,
-            state: state.dataBar.coincidences,
+            state: state.app.dataBar.coincidences,
             props: {
                 channels: [4, 5, 6, 7],
             },
         }),
         dispatch => ({on: {
-            setMaxEntries: entries => dispatch(actions.dataBar.coincidences.setMaxEntries(entries)),
-            setErrorbars: enable => dispatch(actions.dataBar.coincidences.setErrorbars(enable)),
-            setRangeAuto: auto => dispatch(actions.dataBar.coincidences.setRangeAuto(auto)),
-            setShowChannel: (channel, enable) => dispatch(actions.dataBar.setShowChannel(channel, enable)),
-            setRangeMax: value => dispatch(actions.dataBar.coincidences.setRangeMax(value)),
+            setMaxEntries: entries =>
+                dispatch(actions.dataBar.coincidences.setMaxEntries(entries)),
+            setErrorbars: enable =>
+                dispatch(actions.dataBar.coincidences.setErrorbars(enable)),
+            setRangeAuto: auto =>
+                dispatch(actions.dataBar.coincidences.setRangeAuto(auto)),
+            setShowChannel: (channel, enable) =>
+                dispatch(actions.dataBar.setShowChannel(channel, enable)),
+            setRangeMax: value =>
+                dispatch(actions.dataBar.coincidences.setRangeMax(value)),
         }}),
     )(DataBar),
 };
-
-apps['data-log'] = apps.DataLog;
-apps['data-plot-singles'] = apps.DataPlotSingles;
-apps['data-plot-coincidences'] = apps.DataPlotCoincidences;
-apps['data-bar-singles'] = apps.DataBarSingles;
-apps['data-bar-coincidences'] = apps.DataBarCoincidences;
 
 const App_ = ({currentApp}) => {
     const SubApp = apps[currentApp];

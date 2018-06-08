@@ -1,5 +1,3 @@
-import * as dataLog_ from './App/DataLog/actions';
-export const dataLog = dataLog_;
 
 
 export const SET_APP = 'SET_APP';

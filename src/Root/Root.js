@@ -10,20 +10,20 @@ import './root.css';
 
 
 const apps = [
-    'data-log',
-    'data-plot-singles',
-    'data-plot-coincidences',
-    'data-bar-singles',
-    'data-bar-coincidences',
+    'DataLog',
+    'DataPlotSingles',
+    'DataPlotCoincidences',
+    'DataBarSingles',
+    'DataBarCoincidences',
 ];
 
 
 const appNames = {
-    'data-log': 'data log',
-    'data-plot-singles': 'singles plot',
-    'data-plot-coincidences': 'coincidences plot',
-    'data-bar-singles': 'singles bar plot',
-    'data-bar-coincidences': 'coincidences bar plot',
+    DataLog: 'data log',
+    DataPlotSingles: 'singles plot',
+    DataPlotCoincidences: 'coincidences plot',
+    DataBarSingles: 'singles bar plot',
+    DataBarCoincidences: 'coincidences bar plot',
 };
 
 
