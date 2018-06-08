@@ -1,4 +1,5 @@
 import React from 'react';
+import {Entry} from './Entry/Entry';
 
 const columnKeys = [
     'C0 (A)',
@@ -19,7 +20,7 @@ export const DataLog = ({log, state, on}) => {
             -state.maxEntries
     ).map(entry => {
         return (
-            <DataLogEntry key={entry.sample} entry={entry}/>
+            <Entry key={entry.sample} entry={entry}/>
         );
     });
 
@@ -64,37 +65,4 @@ export const DataLog = ({log, state, on}) => {
         </div>
     );
 };
-
-
-const dateString = () => {
-    let time = this.props.time;
-    return '' + time.getFullYear() + '-' + time.getMonth();
-};
-
-const DataLogEntry = ({entry}) => {
-    let values = Array(8);
-    for (let i = 0; i < 8; ++i) {
-        values[i] = Array(2);
-        values[i][0] = (
-            <td key={"mean" + i} className="mean">{entry.data[i].mean.toFixed(2)}</td>
-        );
-        values[i][1] = (
-            <td key={"sem" + i} className="sem">{entry.data[i].sem.toFixed(2)}</td>
-        );
-    }
-
-
-    return (
-        <tr className={entry.sample%2 == 0 ? 'even' : 'odd'}>
-          <td className="sample">{entry.sample}</td>
-          <td className="time">
-            {entry.time.getHours()}:
-            {('' + entry.time.getMinutes()).padStart(2, '0')}:
-            {('' + entry.time.getSeconds()).padStart(2, '0')}
-          </td>
-          {values}
-        </tr>
-    );
-};
-
 
