@@ -1,6 +1,6 @@
 import * as Victory from 'victory';
 import React from 'react';
-import * as plot from '../plot.js';
+import * as plot from '../common/plot.js';
 import * as recharts from 'recharts';
 
 export default class DataLinePlot extends React.Component {

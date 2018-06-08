@@ -1,7 +1,7 @@
 import * as actions from './actions'
-import {dataLog} from './dataLog/reducers'
-import {dataPlot} from './dataPlot/reducers'
-import {dataBar} from './dataBar/reducers'
+import {dataLog} from './App/dataLog/reducers'
+import {dataPlot} from './App/dataPlot/reducers'
+import {dataBar} from './App/DataBar/reducers'
 import * as Redux from 'redux';
 
 

@@ -1,4 +1,4 @@
-import * as dataLog_ from './dataLog/actions';
+import * as dataLog_ from './App/dataLog/actions';
 export const dataLog = dataLog_;
 
 

@@ -1,6 +1,6 @@
 import * as V from 'victory';
 import React from 'react';
-import * as plot from '../plot.js';
+import * as plot from '../common/plot.js';
 
 export default class DataBarPlot extends React.Component {
 
