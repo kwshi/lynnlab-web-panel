@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type FPGACCU struct {
+type FPGACCUController struct {
 	connection *serial.Port
 	reader     *bufio.Reader
 	sample     int
@@ -19,7 +19,7 @@ type FPGACCU struct {
 type Packet [8]int
 type Packets []*Packet
 
-func NewFPGACCU(address string) (*FPGACCU, error) {
+func NewFPGACCUController(address string) (*FPGACCUController, error) {
 	config := &serial.Config{
 		Name: address,
 		Baud: 19200,
@@ -29,7 +29,7 @@ func NewFPGACCU(address string) (*FPGACCU, error) {
 		return nil, err
 	}
 
-	return &FPGACCU{
+	return &FPGACCUController{
 		connection: connection,
 		reader:     bufio.NewReader(connection),
 		sample:     0,
@@ -47,7 +47,7 @@ func deserialize(digits []byte) int {
 	return sum
 }
 
-func (ccu *FPGACCU) ReadPacket() (*Packet, error) {
+func (ccu *FPGACCUController) ReadPacket() (*Packet, error) {
 
 	packetBytes, err := ccu.reader.ReadBytes(0xff)
 	if err != nil {
@@ -66,12 +66,12 @@ func (ccu *FPGACCU) ReadPacket() (*Packet, error) {
 	return &packet, nil
 }
 
-func (ccu *FPGACCU) Flush() error {
+func (ccu *FPGACCUController) Flush() error {
 	_, err := ccu.reader.ReadBytes(0xff)
 	return err
 }
 
-func (ccu *FPGACCU) ReadPackets(n int) (Packets, error) {
+func (ccu *FPGACCUController) ReadPackets(n int) (Packets, error) {
 	packets := make(Packets, n)
 	for i := range packets {
 		packet, err := ccu.ReadPacket()
@@ -114,7 +114,7 @@ func (packets Packets) Summarize() *Data {
 	return &data
 }
 
-func (ccu *FPGACCU) ReadEntry() (*DataEntry, error) {
+func (ccu *FPGACCUController) ReadEntry() (*DataEntry, error) {
 	packets, err := ccu.ReadPackets(10)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (ccu *FPGACCU) ReadEntry() (*DataEntry, error) {
 
 func main_test() {
 
-	ccu, err := NewFPGACCU("COM4")
+	ccu, err := NewFPGACCUController("COM4")
 
 	if err != nil {
 		fmt.Println("error", err)

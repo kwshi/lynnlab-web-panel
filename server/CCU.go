@@ -1,52 +1,48 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-	"time"
-)
-
-type CCU interface {
+type CCUController interface {
 	ReadEntry() (*DataEntry, error)
 }
 
-type Stat struct {
-	Mean float64 `json:"mean"`
-	SEM  float64 `json:"sem"`
+type CCULogger struct {
+	Controller CCUController
+	Log        []*DataEntry
+	logWriter     *LogWriter
 }
 
-type Data [8]*Stat
-
-type DataEntry struct {
-	Sample int       `json:"sample"`
-	Time   time.Time `json:"time"`
-	Data   *Data     `json:"data"`
-}
-
-func (entry *DataEntry) String() string {
-	return fmt.Sprintf("DataEntry{%d, %v, %v}", entry.Sample, entry.Time, entry.Data)
-}
-
-func (data *Data) String() string {
-	var builder strings.Builder
-	builder.WriteString("[\n")
-	for _, stat := range data {
-		builder.WriteString(fmt.Sprintf("  %.2f ± %.2f,\n", stat.Mean, stat.SEM))
+func NewCCULogger(
+	controller CCUController,
+	channel chan<- *DataEntry,
+	output string,
+) (*CCULogger, error) {
+	writer, err := NewLogWriter(output)
+	if err != nil {
+		return nil, err
 	}
-	builder.WriteString("]")
-	return builder.String()
+
+	return &CCULogger{
+		Controller: controller,
+		Log:        make([]*DataEntry, 0),
+		logWriter:  writer,
+	}, nil
 }
 
-type CCUStream struct {
-	CCU
+func (ccu *CCULogger) Next(c chan<- *DataEntry) error {
+	entry, err := ccu.Controller.ReadEntry()
+	if err != nil {
+		return err
+	}
+	ccu.Log = append(ccu.Log, entry)
+	c <- entry
+	return nil
 }
 
-func (ccuStream *CCUStream) Stream(c chan *DataEntry) error {
+
+func (ccu *CCULogger) Stream(c chan<- *DataEntry) error {
 	for {
-		entry, err := ccuStream.CCU.ReadEntry()
+		err := ccu.Next(c)
 		if err != nil {
 			return err
 		}
-		c <- entry
 	}
 }

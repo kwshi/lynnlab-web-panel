@@ -1,11 +1,12 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	//	"encoding/csv"
+	//"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"net/http"
+	"log"
 )
 
 type Message struct {
@@ -13,18 +14,57 @@ type Message struct {
 	Payload interface{} `json:"payload"`
 }
 
-var upgrader = websocket.Upgrader{}
-var clients = make(map[*websocket.Conn]bool)
-var dataLog = make([]*DataEntry, 0)
-var ch = make(chan []*DataEntry)
+type Server struct {
+	Echo *echo.Echo
+	Upgrader *websocket.Upgrader
+	Clients  map[*websocket.Conn]bool
+	CCULogger *CCULogger
+}
 
-func ws(c echo.Context) error {
+func NewServer() (*Server, error) {
+	ccuController, err := NewDummyCCU(0)
+	if err != nil {
+		return nil, err
+	}
+
+	ccuLogger, err := NewCCULogger(
+		ccuController,
+		make(chan *DataEntry),
+		"test-log.csv",
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	server := &Server{
+		Echo: echo.New(),
+		Upgrader: &websocket.Upgrader{},
+		Clients:  make(map[*websocket.Conn]bool),
+		CCULogger: ccuLogger,
+	}
+
+	server.Echo.File("/", "../client/root.html")
+	server.Echo.Static("/static", "../static")
+	server.Echo.GET("/ws", server.ws)
+	server.Echo.GET("/dump/json", server.dumpJSON)
+	server.Echo.GET("/dump/csv", server.dumpCSV)
+
+	return server, nil
+}
+
+func (server *Server) manage() {
+	for {
+		
+	}
+}
+
+func (server *Server) ws(c echo.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("joined")
+	log.Println("joined")
 	clients[ws] = true
 
 	if len(dataLog) < 500 {
@@ -37,65 +77,15 @@ func ws(c echo.Context) error {
 
 }
 
-func hub() {
-	ccu, err := NewDummyCCU(0)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	stream := CCUStream{ccu}
-	go func() {
-		c := make(chan *DataEntry)
-		go stream.Stream(c)
-
-		for {
-			entry := <-c
-			dataLog = append(dataLog, entry)
-			ch <- []*DataEntry{entry}
-		}
-	}()
-
-	for {
-		entries := <-ch
-		js, err := json.Marshal(&Message{
-			Type:    "log",
-			Payload: entries,
-		})
-		if err != nil {
-			continue
-		}
-		for ws := range clients {
-			err := ws.WriteMessage(
-				websocket.TextMessage,
-				js,
-			)
-			if err != nil {
-				ws.Close()
-				delete(clients, ws)
-			}
-		}
-	}
-}
-
-func dumpJson(c echo.Context) error {
-	return c.JSON(http.StatusOK, dataLog)
+func (server *Server) dumpJSON(c echo.Context) error {
+	return c.JSON(http.StatusOK, server.Logger.Log)
 
 }
 
-func dumpCsv(c echo.Context) error {
+func (server *Server) dumpCSV(c echo.Context) error {
 	return c.String(http.StatusOK, "a,b,c")
 }
 
-func main() {
-	e := echo.New()
-
-	e.File("/", "../client/root.html")
-	e.Static("/static", "../static")
-	e.GET("/ws", ws)
-	e.GET("/dump/json", dumpJson)
-	e.GET("/dump/csv", dumpCsv)
-
-	go hub()
-
-	e.Logger.Fatal(e.Start(":5000"))
+func (server *Server) Start(address string) {
+	server.Echo.Logger.Fatal(server.Echo.Start(address))
 }

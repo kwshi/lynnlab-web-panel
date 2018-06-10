@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-type DummyCCU struct {
+type DummyCCUController struct {
 	rand   *rand.Rand
 	sample int
 }
 
-func NewDummyCCU(seed int64) (*DummyCCU, error) {
+func NewDummyCCUController(seed int64) (*DummyCCUController, error) {
 	r := rand.New(rand.NewSource(seed))
-	return &DummyCCU{
+	return &DummyCCUController{
 		rand:   r,
 		sample: 0,
 	}, nil
 }
 
-func (ccu *DummyCCU) randomSummary(size int) (float64, float64) {
+func (ccu *DummyCCUController) randomSummary(size int) (float64, float64) {
 	stuff := make([]float64, size)
 	for i := range stuff {
 		stuff[i] = ccu.rand.NormFloat64()*100 + 1000
@@ -30,7 +30,7 @@ func (ccu *DummyCCU) randomSummary(size int) (float64, float64) {
 	return mean, sem
 }
 
-func (ccu *DummyCCU) ReadEntry() (*DataEntry, error) {
+func (ccu *DummyCCUController) ReadEntry() (*DataEntry, error) {
 	time.Sleep(1 * time.Second)
 	ccu.sample++
 

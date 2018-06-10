@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-type FileCCU struct {
+type FileCCUController struct {
 	file   *os.File
 	reader *csv.Reader
 }
 
-func NewFileCCU(path string) (*FileCCU, error) {
+func NewFileCCUController(path string) (*FileCCUController, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -25,13 +25,13 @@ func NewFileCCU(path string) (*FileCCU, error) {
 		return nil, err
 	}
 
-	return &FileCCU{
+	return &FileCCUController{
 		file:   file,
 		reader: reader,
 	}, nil
 }
 
-func (ccu *FileCCU) ReadEntry() (*DataEntry, error) {
+func (ccu *FileCCUController) ReadEntry() (*DataEntry, error) {
 	var row []string
 	var err error
 	for {
