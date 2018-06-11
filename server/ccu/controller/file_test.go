@@ -1,12 +1,12 @@
-package ccu
+package controller
 
 import (
 	"fmt"
 	"testing"
 )
 
-func TestFPGA(t *testing.T) {
-	controller, err := NewFPGA("COM4")
+func TestFile(t *testing.T) {
+	controller, err := NewFile("../../tmp/ccu-log.csv")
 	if err != nil {
 		t.Error(err)
 		return

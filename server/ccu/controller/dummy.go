@@ -1,4 +1,4 @@
-package ccu
+package controller
 
 import (
 	"gonum.org/v1/gonum/stat"
@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-type DummyController struct {
+type Dummy struct {
 	rand   *rand.Rand
 	sample int
 }
 
-func NewDummyController(seed int64) (*DummyController, error) {
+func NewDummy(seed int64) (*Dummy, error) {
 	r := rand.New(rand.NewSource(seed))
-	return &DummyController{
+	return &Dummy{
 		rand:   r,
 		sample: 0,
 	}, nil
 }
 
-func (ccu *DummyController) randomSummary(size int) (float64, float64) {
+func (ccu *Dummy) randomSummary(size int) (float64, float64) {
 	stuff := make([]float64, size)
 	for i := range stuff {
 		stuff[i] = ccu.rand.NormFloat64()*100 + 1000
@@ -30,7 +30,7 @@ func (ccu *DummyController) randomSummary(size int) (float64, float64) {
 	return mean, sem
 }
 
-func (ccu *DummyController) ReadEntry() (*DataEntry, error) {
+func (ccu *Dummy) ReadEntry() (*DataEntry, error) {
 	time.Sleep(1 * time.Second)
 	ccu.sample++
 

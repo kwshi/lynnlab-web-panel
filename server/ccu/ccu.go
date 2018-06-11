@@ -1,18 +1,18 @@
 package ccu
 
-type Controller interface {
-	ReadEntry() (*DataEntry, error)
-}
+import (
+	"./controller"
+)
 
-type Logger struct {
-	Controller Controller
+type Manager struct {
+	Controller controller.Controller
 	Log        []*DataEntry
 	logWriter  *LogWriter
 	Channel    chan *DataEntry
 }
 
-func NewLogger(
-	controller Controller,
+func NewManager(
+	controller controller.Controller,
 	output string,
 ) (*Logger, error) {
 	writer, err := NewLogWriter(output)
@@ -24,7 +24,7 @@ func NewLogger(
 		Controller: controller,
 		Log:        make([]*DataEntry, 0),
 		logWriter:  writer,
-		Channel: make(chan *DataEntry),
+		Channel:    make(chan *DataEntry),
 	}, nil
 
 }

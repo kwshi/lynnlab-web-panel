@@ -1,4 +1,4 @@
-package ccu
+package controller
 
 import (
 	"encoding/csv"
@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-type FileController struct {
+type File struct {
 	file   *os.File
 	reader *csv.Reader
 }
 
-func NewFileController(path string) (*FileController, error) {
+func NewFile(path string) (*File, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -25,13 +25,13 @@ func NewFileController(path string) (*FileController, error) {
 		return nil, err
 	}
 
-	return &FileController{
+	return &File{
 		file:   file,
 		reader: reader,
 	}, nil
 }
 
-func (ccu *FileController) ReadEntry() (*DataEntry, error) {
+func (ccu *File) ReadEntry() (*DataEntry, error) {
 	var row []string
 	var err error
 	for {

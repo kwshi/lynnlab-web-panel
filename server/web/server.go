@@ -1,25 +1,21 @@
 package main
 
 import (
+	"./ccu"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"log"
 	"net/http"
-	"./ccu"
 )
 
-type Message struct {
-	Type    string      `json:"type"`
-	Payload interface{} `json:"payload"`
-}
-
 type Server struct {
-	Echo      *echo.Echo
-	Upgrader  *websocket.Upgrader
-	Clients   map[*websocket.Conn]bool
+	echo     *echo.Echo
+	upgrader *websocket.Upgrader
+	clients  map[*websocket.Conn]bool
+	logger   *log.Logger
 }
 
-func NewServer() (*Server, error) {
+func NewServer(logger *log.Logger) (*Server, error) {
 	ccuController, err := NewDummyCCUController(0)
 	if err != nil {
 		return nil, err
@@ -34,67 +30,37 @@ func NewServer() (*Server, error) {
 	}
 
 	server := &Server{
-		Echo:      echo.New(),
-		Upgrader:  &websocket.Upgrader{},
-		Clients:   make(map[*websocket.Conn]bool),
-		CCULogger: ccuLogger,
+		echo:     echo.New(),
+		upgrader: &websocket.Upgrader{},
+		clients:  make(map[*websocket.Conn]bool),
+		logger:   logger,
 	}
 
-	server.Echo.File("/", "../client/root.html")
-	server.Echo.Static("/static", "../static")
-	server.Echo.GET("/ws", server.ws)
-	server.Echo.GET("/dump/json", server.dumpJSON)
-	server.Echo.GET("/dump/csv", server.dumpCSV)
+	server.echo.File("/", "../client/root.html")
+	server.echo.Static("/static", "../static")
+	server.echo.GET("/ws", server.ws)
+	server.echo.GET("/dump/json", server.dumpJSON)
+	server.echo.GET("/dump/csv", server.dumpCSV)
 
 	return server, nil
 }
 
-func (server *Server) manage() {
-	for {
-		select {
-		case entry := <-server.CCULogger.Channel:
-			log.Println("writing entry")
-			for client := range server.Clients {
-				client.WriteJSON(&Message{
-					Type: "log",
-					Payload: []*DataEntry{entry},
-				})
-			}
-		}
-	}
-}
-
 func (server *Server) ws(c echo.Context) error {
-	ws, err := server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
+	ws, err := server.upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 
-	log.Println("joined")
+	server.logger.Println("joined")
 
 	// write all log to client
-	ws.WriteJSON(&Message{
-		Type: "log",
-		Payload: server.CCULogger.Log,
-	})
 
-	server.Clients[ws] = true
+	server.clients[ws] = true
 
 	return nil
 
 }
 
-func (server *Server) dumpJSON(c echo.Context) error {
-	return c.JSON(http.StatusOK, server.CCULogger.Log)
-
-}
-
-func (server *Server) dumpCSV(c echo.Context) error {
-	return c.String(http.StatusOK, "a,b,c")
-}
-
-func (server *Server) Start(address string) {
-	go server.manage()
-	go server.CCULogger.Stream()
-	server.Echo.Logger.Fatal(server.Echo.Start(address))
+func (server *Server) Start(address string) error {
+	return server.Echo.Start(address)
 }
