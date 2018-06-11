@@ -3,33 +3,30 @@ package web
 import (
 	"github.com/gorilla/websocket"
 	"../ccu/data"
+	"./message"
 )
 
-type Message struct {
-	Type string `json:"type"`
-	Payload interface{} `json:"payload"`
-}
 
 type Client struct {
-	server *Server
 	connection *websocket.Conn
-	
+}
+
+func NewClient(connection *websocket.Conn) *Client {
+	return &Client{
+		connection: connection,
+	}
+
 }
 
 func (client *Client) DumpLog(log []*data.Entry) error {
-	return client.connection.WriteJSON(&Message{
-		"log",
-		log,
-	})
+	return client.connection.WriteJSON(message.NewDump(log))
 }
 
 func (client *Client) SendEntry(entry *data.Entry) error {
-	return client.connection.WriteJSON(&Message{
-		"log",
-		[]*data.Entry{entry},
-	})
+	
+	return client.connection.WriteJSON(message.NewEntry(entry))
 }
 
 func (client *Client) listen() {
-	
+
 }

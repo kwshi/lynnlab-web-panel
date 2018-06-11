@@ -58,10 +58,7 @@ func (server *Server) handleWebsocket(context echo.Context) error {
 
 	server.logger.Println("websocket connection created")
 	
-	client := &Client{
-		server: server,
-		connection: connection,
-	}
+	client := NewClient(connection)
 
 	server.addClient(client)
 
