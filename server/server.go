@@ -1,12 +1,11 @@
 package main
 
 import (
-	//	"encoding/csv"
-	//"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	"net/http"
 	"log"
+	"net/http"
+	"./ccu"
 )
 
 type Message struct {
@@ -15,21 +14,19 @@ type Message struct {
 }
 
 type Server struct {
-	Echo *echo.Echo
-	Upgrader *websocket.Upgrader
-	Clients  map[*websocket.Conn]bool
-	CCULogger *CCULogger
+	Echo      *echo.Echo
+	Upgrader  *websocket.Upgrader
+	Clients   map[*websocket.Conn]bool
 }
 
 func NewServer() (*Server, error) {
-	ccuController, err := NewDummyCCU(0)
+	ccuController, err := NewDummyCCUController(0)
 	if err != nil {
 		return nil, err
 	}
 
 	ccuLogger, err := NewCCULogger(
 		ccuController,
-		make(chan *DataEntry),
 		"test-log.csv",
 	)
 	if err != nil {
@@ -37,9 +34,9 @@ func NewServer() (*Server, error) {
 	}
 
 	server := &Server{
-		Echo: echo.New(),
-		Upgrader: &websocket.Upgrader{},
-		Clients:  make(map[*websocket.Conn]bool),
+		Echo:      echo.New(),
+		Upgrader:  &websocket.Upgrader{},
+		Clients:   make(map[*websocket.Conn]bool),
 		CCULogger: ccuLogger,
 	}
 
@@ -54,31 +51,41 @@ func NewServer() (*Server, error) {
 
 func (server *Server) manage() {
 	for {
-		
+		select {
+		case entry := <-server.CCULogger.Channel:
+			log.Println("writing entry")
+			for client := range server.Clients {
+				client.WriteJSON(&Message{
+					Type: "log",
+					Payload: []*DataEntry{entry},
+				})
+			}
+		}
 	}
 }
 
 func (server *Server) ws(c echo.Context) error {
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	ws, err := server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 
 	log.Println("joined")
-	clients[ws] = true
 
-	if len(dataLog) < 500 {
-		ch <- dataLog
-	} else {
-		ch <- dataLog[len(dataLog)-500:]
-	}
+	// write all log to client
+	ws.WriteJSON(&Message{
+		Type: "log",
+		Payload: server.CCULogger.Log,
+	})
+
+	server.Clients[ws] = true
 
 	return nil
 
 }
 
 func (server *Server) dumpJSON(c echo.Context) error {
-	return c.JSON(http.StatusOK, server.Logger.Log)
+	return c.JSON(http.StatusOK, server.CCULogger.Log)
 
 }
 
@@ -87,5 +94,7 @@ func (server *Server) dumpCSV(c echo.Context) error {
 }
 
 func (server *Server) Start(address string) {
+	go server.manage()
+	go server.CCULogger.Stream()
 	server.Echo.Logger.Fatal(server.Echo.Start(address))
 }
