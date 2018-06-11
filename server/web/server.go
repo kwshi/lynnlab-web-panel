@@ -1,66 +1,87 @@
-package main
+package web
 
 import (
-	"./ccu"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"log"
-	"net/http"
+	"../ccu/data"
 )
 
 type Server struct {
 	echo     *echo.Echo
 	upgrader *websocket.Upgrader
-	clients  map[*websocket.Conn]bool
+	clients  map[*Client]bool
 	logger   *log.Logger
+	newClient chan *Client
 }
 
 func NewServer(logger *log.Logger) (*Server, error) {
-	ccuController, err := NewDummyCCUController(0)
-	if err != nil {
-		return nil, err
-	}
-
-	ccuLogger, err := NewCCULogger(
-		ccuController,
-		"test-log.csv",
-	)
-	if err != nil {
-		return nil, err
-	}
-
 	server := &Server{
 		echo:     echo.New(),
 		upgrader: &websocket.Upgrader{},
-		clients:  make(map[*websocket.Conn]bool),
+		clients:  make(map[*Client]bool),
 		logger:   logger,
+		newClient: make(chan *Client),
 	}
 
 	server.echo.File("/", "../client/root.html")
 	server.echo.Static("/static", "../static")
-	server.echo.GET("/ws", server.ws)
-	server.echo.GET("/dump/json", server.dumpJSON)
-	server.echo.GET("/dump/csv", server.dumpCSV)
+	server.echo.GET("/ws", server.handleWebsocket)
 
 	return server, nil
 }
 
-func (server *Server) ws(c echo.Context) error {
-	ws, err := server.upgrader.Upgrade(c.Response(), c.Request(), nil)
+func (server *Server) addClient(client *Client) {
+	server.logger.Println("adding new client")
+	server.newClient <- client
+	server.clients[client] = true
+}
+
+func (server *Server) removeClient(client *Client) {
+	delete(server.clients, client)
+}
+
+func (server *Server) handleWebsocket(context echo.Context) error {
+
+	server.logger.Println("websocket connection requested from", context.RealIP())
+
+	connection, err := server.upgrader.Upgrade(
+		context.Response(),
+		context.Request(),
+		nil,
+	)
 	if err != nil {
 		return err
 	}
 
-	server.logger.Println("joined")
+	server.logger.Println("websocket connection created")
+	
+	client := &Client{
+		server: server,
+		connection: connection,
+	}
 
-	// write all log to client
+	server.addClient(client)
 
-	server.clients[ws] = true
-
+	go client.listen()
+	
 	return nil
+}
 
+func (server *Server) BroadcastEntry(entry *data.Entry) {
+	for client := range server.clients {
+		err := client.SendEntry(entry)
+		if err != nil {
+			server.removeClient(client)
+		}
+	}
+}
+
+func (server *Server) GetNewClient() <-chan *Client {
+	return server.newClient
 }
 
 func (server *Server) Start(address string) error {
-	return server.Echo.Start(address)
+	return server.echo.Start(address)
 }
+

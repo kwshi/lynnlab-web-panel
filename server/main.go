@@ -1,15 +1,19 @@
 package main
 
+import (
+	"log"
+	"os"
+)
 
 func main() {
 
-	server, err := NewServer()
+	logger := log.New(os.Stdout, "", log.LstdFlags)
 
+	app, err := NewApp(logger)
 	if err != nil {
-		panic(err)
+		logger.Panic(err)
 	}
 
-
-	server.Start("localhost:5000")
+	app.Start(WEB_ADDRESS)	
 
 }

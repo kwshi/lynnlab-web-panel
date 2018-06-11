@@ -1,6 +1,10 @@
 package controller
 
+import (
+	"../data"
+)
+
 type Controller interface {
-	ReadEntry() (*DataEntry, error)
+	ReadEntry() (*data.Entry, error)
 }
 

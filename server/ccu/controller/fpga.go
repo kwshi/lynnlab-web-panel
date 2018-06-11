@@ -3,11 +3,11 @@ package controller
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"github.com/tarm/serial"
 	"gonum.org/v1/gonum/stat"
 	"math"
 	"time"
+	"../data"
 )
 
 type FPGA struct {
@@ -16,8 +16,8 @@ type FPGA struct {
 	sample     int
 }
 
-type Packet [8]int
-type Packets []*Packet
+type RawPacket [8]int
+type RawPackets []*RawPacket
 
 func NewFPGA(address string) (*FPGA, error) {
 	config := &serial.Config{
@@ -47,23 +47,23 @@ func deserialize(digits []byte) int {
 	return sum
 }
 
-func (ccu *FPGA) ReadPacket() (*Packet, error) {
+func (ccu *FPGA) ReadPacket() (*RawPacket, error) {
 
-	packetBytes, err := ccu.reader.ReadBytes(0xff)
+	bytes, err := ccu.reader.ReadBytes(0xff)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(packetBytes) != 41 {
+	if len(bytes) != 41 {
 		return nil, errors.New("incorrect number of bytes given before termination")
 	}
 
-	var packet Packet
-	for i := range packet {
-		packet[i] = deserialize(packetBytes[5*i : 5*(i+1)])
+	var rawPacket RawPacket
+	for i := range rawPacket {
+		rawPacket[i] = deserialize(bytes[5*i : 5*(i+1)])
 	}
 
-	return &packet, nil
+	return &rawPacket, nil
 }
 
 func (ccu *FPGA) Flush() error {
@@ -71,61 +71,62 @@ func (ccu *FPGA) Flush() error {
 	return err
 }
 
-func (ccu *FPGA) ReadPackets(n int) (Packets, error) {
-	packets := make(Packets, n)
-	for i := range packets {
-		packet, err := ccu.ReadPacket()
+func (ccu *FPGA) ReadPackets(n int) (RawPackets, error) {
+	rawPackets := make(RawPackets, n)
+	for i := range rawPackets {
+		rawPacket, err := ccu.ReadPacket()
 		if err != nil {
 			return nil, err
 		}
-		packets[i] = packet
+		rawPackets[i] = rawPacket
 	}
-	return packets, nil
+	return rawPackets, nil
 }
 
-func summarize(values []float64) *Stat {
+func summarize(values []float64) *data.Stat {
 
 	mean, std := stat.MeanStdDev(values, nil)
 	sem := std / math.Sqrt(float64(len(values)))
 
-	return &Stat{mean, sem}
+	return &data.Stat{mean, sem}
 
 }
 
-func (packets Packets) Summarize() *Data {
-	data := Data{}
+func (rawPackets RawPackets) Summarize() *data.Packet {
 
 	// "zip" values into channels
 	values := [8][]float64{}
 	for i := range values {
-		values[i] = make([]float64, len(packets))
+		values[i] = make([]float64, len(rawPackets))
 	}
 
-	for i, packet := range packets {
-		for channel, value := range packet {
+	for i, rawPacket := range rawPackets {
+		for channel, value := range rawPacket {
 			values[channel][i] = float64(value)
 		}
 	}
+	
+	var packet data.Packet
 
 	for i := range values {
-		data[i] = summarize(values[i])
+		packet[i] = summarize(values[i])
 	}
 
-	return &data
+	return &packet
 }
 
-func (ccu *FPGA) ReadEntry() (*DataEntry, error) {
-	packets, err := ccu.ReadPackets(10)
+func (ccu *FPGA) ReadEntry() (*data.Entry, error) {
+	rawPackets, err := ccu.ReadPackets(10)
 	if err != nil {
 		return nil, err
 	}
-	data := packets.Summarize()
+	packet := rawPackets.Summarize()
 	ccu.sample++
 
-	return &DataEntry{
+	return &data.Entry{
 		Sample: ccu.sample,
 		Time:   time.Now(),
-		Data:   data,
+		Data:   packet,
 	}, nil
 
 }

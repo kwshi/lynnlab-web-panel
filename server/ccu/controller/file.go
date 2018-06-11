@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"../data"
 )
 
 type File struct {
@@ -31,7 +32,7 @@ func NewFile(path string) (*File, error) {
 	}, nil
 }
 
-func (ccu *File) ReadEntry() (*DataEntry, error) {
+func (ccu *File) ReadEntry() (*data.Entry, error) {
 	var row []string
 	var err error
 	for {
@@ -55,8 +56,8 @@ func (ccu *File) ReadEntry() (*DataEntry, error) {
 	}
 	t := time.Unix(0, int64(unix*1e9))
 
-	var data Data
-	for i := range data {
+	var packet data.Packet
+	for i := range packet {
 		mean, err := strconv.ParseFloat(row[2*i+2], 64)
 		if err != nil {
 			return nil, err
@@ -65,8 +66,8 @@ func (ccu *File) ReadEntry() (*DataEntry, error) {
 		if err != nil {
 			return nil, err
 		}
-		data[i] = &Stat{mean, sem}
+		packet[i] = &data.Stat{mean, sem}
 	}
-
-	return &DataEntry{sample, t, &data}, nil
+	
+	return &data.Entry{sample, t, &packet}, nil
 }

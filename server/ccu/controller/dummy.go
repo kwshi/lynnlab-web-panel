@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"time"
+	"../data"
 )
 
 type Dummy struct {
@@ -30,19 +31,19 @@ func (ccu *Dummy) randomSummary(size int) (float64, float64) {
 	return mean, sem
 }
 
-func (ccu *Dummy) ReadEntry() (*DataEntry, error) {
+func (ccu *Dummy) ReadEntry() (*data.Entry, error) {
 	time.Sleep(1 * time.Second)
 	ccu.sample++
 
-	var data Data
-	for i := range data {
+	var packet data.Packet
+	for i := range packet {
 		mean, sem := ccu.randomSummary(100)
-		data[i] = &Stat{mean, sem}
+		packet[i] = &data.Stat{mean, sem}
 	}
 
-	return &DataEntry{
+	return &data.Entry{
 		Sample: ccu.sample,
 		Time:   time.Now(),
-		Data:   &data,
+		Data:   &packet,
 	}, nil
 }

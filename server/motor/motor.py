@@ -6,8 +6,8 @@ def send(message):
     sys.stdout.write('{}\n'.format(message))
 
 
-def respond(query, message):
-    sys.stdout.write('{} {}\n'.format(message))
+def receive(message):
+    return sys.stdout.readline()
 
 
 sys.stdout.write('loaded\n')
