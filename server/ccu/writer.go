@@ -2,30 +2,23 @@ package ccu
 
 import (
 	"encoding/csv"
-	"os"
 	"./data"
 	"strconv"
+	"io"
 )
 
 type Writer struct {
-	file   *os.File
-	writer *csv.Writer
+	csvWriter *csv.Writer
 }
 
-func NewWriter(path string) (*Writer, error) {
-	file, err := os.Create(path)
-	if err != nil {
-		return nil, err
-	}
-
+func NewWriter(writer io.Writer) *Writer {
 	return &Writer{
-		file,
-		csv.NewWriter(file),
-	}, nil
+		csv.NewWriter(writer),
+	}
 }
 
-func (writer *Writer) WriteHeader() {
-	writer.writer.Write([]string{
+func (writer *Writer) WriteHeader() error {
+	return writer.csvWriter.Write([]string{
 		"sample",
 		"time",
 		"C0 (A)",
@@ -39,7 +32,7 @@ func (writer *Writer) WriteHeader() {
 	})
 }
 
-func (writer *Writer) Write(entry *data.Entry) {
+func (writer *Writer) Write(entry *data.Entry) error {
 	record := []string{
 		strconv.Itoa(entry.Sample),
 		strconv.FormatFloat(float64(entry.Time.UnixNano()) / 1e9, 'f', 3, 64),
@@ -53,6 +46,12 @@ func (writer *Writer) Write(entry *data.Entry) {
 		)
 	}
 	
-	writer.writer.Write(record)
-	writer.writer.Flush()
+	err := writer.csvWriter.Write(record)
+	if err != nil {
+		return err
+	}
+	writer.csvWriter.Flush()
+
+	return nil
+
 }

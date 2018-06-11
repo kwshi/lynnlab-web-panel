@@ -4,47 +4,26 @@ import (
 	"./controller"
 	"./data"
 	"log"
-	"fmt"
-	"time"
+	//	"os"
+	"io/ioutil"
 )
 
 type CCU struct {
 	controller controller.Controller
 	log        []*data.Entry
-	writer     *Writer
 	newEntry    chan *data.Entry
 	logger     *log.Logger
 }
 
 func New(
 	controller controller.Controller,
-	output string,
-	logger *log.Logger,
 ) (*CCU, error) {
-
-	now := time.Now()
-	writer, err := NewWriter(fmt.Sprintf(
-		"%s_%d-%02d-%02d_%02d-%02d-%02d.csv",
-		output,
-		now.Year(),
-		now.Month(),
-		now.Day(),
-		now.Hour(),
-		now.Minute(),
-		now.Second(),
-	))
-	
-	if err != nil {
-		return nil, err
-	}
-	writer.WriteHeader()
 
 	return &CCU{
 		controller: controller,
 		log:        make([]*data.Entry, 0),
 		newEntry:    make(chan *data.Entry),
-		writer:     writer,
-		logger: logger,
+		logger: log.New(ioutil.Discard, "ccu: ", log.LstdFlags),
 	}, nil
 
 }
@@ -63,7 +42,6 @@ func (ccu *CCU) next() error {
 		return err
 	}
 	ccu.newEntry <- entry
-	ccu.writer.Write(entry)
 	ccu.log = append(ccu.log, entry)
 	return nil
 }

@@ -7,9 +7,9 @@ import (
 
 func main() {
 
-	logger := log.New(os.Stdout, "", log.LstdFlags)
+	logger := log.New(os.Stdout, "main", log.LstdFlags)
 
-	app, err := NewApp(logger)
+	app, err := NewApp()
 	if err != nil {
 		logger.Panic(err)
 	}

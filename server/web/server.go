@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"log"
+	"os"
 	"../ccu/data"
 )
 
@@ -15,12 +16,12 @@ type Server struct {
 	newClient chan *Client
 }
 
-func NewServer(logger *log.Logger) (*Server, error) {
+func NewServer() (*Server, error) {
 	server := &Server{
 		echo:     echo.New(),
 		upgrader: &websocket.Upgrader{},
 		clients:  make(map[*Client]bool),
-		logger:   logger,
+		logger:   log.New(os.Stdout, "server: ", log.LstdFlags),
 		newClient: make(chan *Client),
 	}
 
@@ -45,6 +46,7 @@ func (server *Server) handleWebsocket(context echo.Context) error {
 
 	server.logger.Println("websocket connection requested from", context.RealIP())
 
+	server.logger.Println("initiating websocket connection")
 	connection, err := server.upgrader.Upgrade(
 		context.Response(),
 		context.Request(),
