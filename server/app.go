@@ -5,11 +5,11 @@ import (
 	"./ccu/controller"
 	"./web"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
-	"time"
-	"io"
 	"os"
+	"time"
 )
 
 type multiWriter struct {
@@ -24,7 +24,7 @@ func (m *multiWriter) Write(p []byte) (n int, err error) {
 	for _, writer := range m.writers {
 		n, err = writer.Write(p)
 		if err != nil {
-			return 
+			return
 		}
 	}
 	return
@@ -43,7 +43,12 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	ccuController, err := controller.NewDummy(0)
+	var ccuController controller.Controller
+	if DEV_MODE {
+		ccuController, err = controller.NewDummy(0)
+	} else {
+		ccuController, err = controller.NewFPGA("COM4")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +59,15 @@ func NewApp() (*App, error) {
 	}
 
 	now := time.Now()
+	var dataDir string
+	if DEV_MODE {
+		dataDir = "data-dev"
+	} else {
+		dataDir = "data"
+	}
 	ccuLog, err := os.Create(fmt.Sprintf(
-		"../data/log_%d-%02d-%02d_%02d-%02d-%02d.csv",
+		"../%s/log_%d-%02d-%02d_%02d-%02d-%02d.csv",
+		dataDir,
 		now.Year(),
 		now.Month(),
 		now.Day(),
@@ -67,9 +79,13 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	ccuTempLog, err := os.Create(fmt.Sprintf(
-		"../../tmp/ccu-log.csv",
-	))
+	var tempLogName string
+	if DEV_MODE {
+		tempLogName = "../../tmp/ccu-log-dev.csv"
+	} else {
+		tempLogName = "../../tmp/ccu-log.csv"
+	}
+	ccuTempLog, err := os.Create(tempLogName)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +106,7 @@ func (app *App) listen() {
 		select {
 		case client := <-app.server.GetNewClient():
 			app.logger.Println("received new client, dumping log")
-			client.DumpLog(app.ccu.GetLog())
+			client.SendDump(app.ccu.GetLog())
 			app.logger.Println("log dumped")
 
 		case entry := <-app.ccu.GetNewEntry():

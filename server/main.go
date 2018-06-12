@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	logger := log.New(os.Stdout, "main", log.LstdFlags)
+	logger := log.New(os.Stdout, "main: ", log.LstdFlags)
 
 	app, err := NewApp()
 	if err != nil {

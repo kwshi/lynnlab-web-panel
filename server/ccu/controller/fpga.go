@@ -88,7 +88,10 @@ func summarize(values []float64) *data.Stat {
 	mean, std := stat.MeanStdDev(values, nil)
 	sem := std / math.Sqrt(float64(len(values)))
 
-	return &data.Stat{mean, sem}
+	return &data.Stat{
+	mean * float64(len(values)),
+	sem * float64(len(values)),
+	}
 
 }
 
@@ -114,6 +117,7 @@ func (rawPackets RawPackets) Summarize() *data.Packet {
 
 	return &packet
 }
+
 
 func (ccu *FPGA) ReadEntry() (*data.Entry, error) {
 	rawPackets, err := ccu.ReadPackets(10)
