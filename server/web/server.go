@@ -69,10 +69,10 @@ func (server *Server) handleWebsocket(context echo.Context) error {
 
 func (server *Server) BroadcastEntry(entry *data.Entry) {
 	for client := range server.clients {
-		err := client.SendEntry(entry)
-		if err != nil {
-			server.removeClient(client)
-		}
+		client.SendEntry(entry)
+		//		if err != nil {
+		//			server.removeClient(client)
+		//		}
 	}
 }
 
