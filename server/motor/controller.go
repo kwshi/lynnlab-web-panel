@@ -10,15 +10,21 @@ import (
 	"errors"
 )
 
-type MotorController struct {
+type Controller struct {
 	cmd *exec.Cmd
 	cmdOut io.Reader
 	cmdIn io.Writer
 	outReader *bufio.Reader
 }
 
-func NewMotorController() *MotorController {
-	cmd := exec.Command("python", "python/motor.py")
+func NewController() *Controller {
+	var path string
+	if DEV_MODE {
+		path = "python/motor_dev.py"
+	} else {
+		path = "python/motor_thorlabs.py"
+	}
+	cmd := exec.Command("python", path)
 
 	cmd.Stderr = os.Stderr
 	cmdIn, err := cmd.StdinPipe()
@@ -33,7 +39,7 @@ func NewMotorController() *MotorController {
 
 	outReader := bufio.NewReader(cmdOut)
 	
-	return &MotorController{
+	return &Controller{
 		cmd: cmd,
 		cmdIn: cmdIn,
 		cmdOut: cmdOut,
@@ -41,19 +47,19 @@ func NewMotorController() *MotorController {
 	}
 }
 
-func (mc *MotorController) Start() {
-	mc.cmd.Start()
+func (c *Controller) Start() {
+	c.cmd.Start()
 }
 
-func (mc *MotorController) send(cmd string) error {
+func (c *Controller) send(cmd string) error {
 	line := cmd + "\n"
-	_, err := mc.cmdIn.Write([]byte(line))
+	_, err := c.cmdIn.Write([]byte(line))
 
 	return err
 }
 
-func (mc *MotorController) receive(msg Msg) (error) {
-	line, err := mc.outReader.ReadBytes('\n')
+func (c *Controller) receive(msg Msg) (error) {
+	line, err := c.outReader.ReadBytes('\n')
 	if err != nil {
 		return err
 	}
@@ -70,13 +76,13 @@ func (mc *MotorController) receive(msg Msg) (error) {
 	return nil
 }
 
-func (mc *MotorController) sendReceive(cmd string, msg Msg) (error) {
-	err := mc.send(cmd)
+func (c *Controller) sendReceive(cmd string, msg Msg) (error) {
+	err := c.send(cmd)
 	if err != nil {
 		return err
 	}
 
-	err = mc.receive(msg)
+	err = c.receive(msg)
 	if err != nil {
 		return err
 	}
@@ -84,14 +90,14 @@ func (mc *MotorController) sendReceive(cmd string, msg Msg) (error) {
 	return nil
 }
 
-func (mc *MotorController) Ping() error {
+func (c *Controller) Ping() error {
 	var msg BlankMsg
-	return mc.sendReceive("ping", &msg)
+	return c.sendReceive("ping", &msg)
 }
 
-func (mc *MotorController) ListAvailable() ([]int, error) {
+func (c *Controller) ListAvailable() ([]int, error) {
 	var msg ListMsg
-	err := mc.sendReceive("list", &msg)
+	err := c.sendReceive("list", &msg)
 	if err != nil {
 		return nil, err
 	}
@@ -99,24 +105,24 @@ func (mc *MotorController) ListAvailable() ([]int, error) {
 	return msg.Payload, nil
 }
 
-func (mc *MotorController) Connect(sn int) error {
+func (c *Controller) Connect(sn int) error {
 	var msg BlankMsg
-	return mc.sendReceive(fmt.Sprintf("connect %d", sn), &msg)
+	return c.sendReceive(fmt.Sprintf("connect %d", sn), &msg)
 }
 
-func (mc *MotorController) Reset() error {
+func (c *Controller) Reset() error {
 	var msg BlankMsg
-	return mc.sendReceive("reset", &msg)
+	return c.sendReceive("reset", &msg)
 }
 
-func (mc *MotorController) Move(sn int, pos float64) error {
+func (c *Controller) Move(sn int, pos float64) error {
 	var msg BlankMsg
-	return mc.sendReceive(fmt.Sprintf("move %d %f", sn, pos), &msg)
+	return c.sendReceive(fmt.Sprintf("move %d %f", sn, pos), &msg)
 }
 
-func (mc *MotorController) State() (State, error) {
+func (c *Controller) State() (State, error) {
 	var msg StateMsg
-	err := mc.sendReceive("state", &msg)
+	err := c.sendReceive("state", &msg)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +130,7 @@ func (mc *MotorController) State() (State, error) {
 	return msg.Payload, nil
 }
 
-func (mc *MotorController) Exit() error {
-	return mc.send("exit")
+func (c *Controller) Exit() error {
+	return c.send("exit")
 }
 
