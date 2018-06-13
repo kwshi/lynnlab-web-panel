@@ -3,6 +3,7 @@ package main
 import (
 	"./ccu"
 	"./ccu/controller"
+	"./motor"
 	"./web"
 	"fmt"
 	"io"
@@ -12,10 +13,10 @@ import (
 	"time"
 )
 
-
 type App struct {
 	server    *web.Server // web interface
 	ccu       *ccu.CCU    // for recording ccu data
+	motors    *motor.Hub  // interfacing with motors
 	logger    *log.Logger // for logging info to command line
 	ccuWriter *ccu.Writer // for writing ccu data to log file
 }
@@ -36,7 +37,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	ccu_, err := ccu.New(ccuController)
+	ccuHub, err := ccu.New(ccuController)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +77,15 @@ func NewApp() (*App, error) {
 	ccuWriter := ccu.NewWriter(io.MultiWriter(ccuLog, ccuTempLog))
 	ccuWriter.WriteHeader()
 
+	motorHub, err := motor.New()
+	if err != nil {
+		return nil, err
+	}
+
 	return &App{
 		server:    server,
-		ccu:       ccu_,
+		ccu:       ccuHub,
+		motors:    motorHub,
 		logger:    log.New(ioutil.Discard, "app: ", log.LstdFlags),
 		ccuWriter: ccuWriter,
 	}, nil
@@ -101,7 +108,7 @@ func (app *App) listen() {
 			app.ccuWriter.Write(entry)
 			app.logger.Println("written")
 
-			
+
 		}
 	}
 }

@@ -17,7 +17,7 @@ type Controller struct {
 	outReader *bufio.Reader
 }
 
-func NewController() *Controller {
+func NewController() (*Controller, error) {
 	var path string
 	if DEV_MODE {
 		path = "python/motor_dev.py"
@@ -29,22 +29,21 @@ func NewController() *Controller {
 	cmd.Stderr = os.Stderr
 	cmdIn, err := cmd.StdinPipe()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	cmdOut, err := cmd.StdoutPipe()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	_=err
 
 	outReader := bufio.NewReader(cmdOut)
-	
+
 	return &Controller{
 		cmd: cmd,
 		cmdIn: cmdIn,
 		cmdOut: cmdOut,
 		outReader: outReader,
-	}
+	}, nil
 }
 
 func (c *Controller) Start() {
@@ -130,7 +129,8 @@ func (c *Controller) State() (State, error) {
 	return msg.Payload, nil
 }
 
-func (c *Controller) Exit() error {
+func (c *Controller) Stop() error {
 	return c.send("exit")
 }
 
+.

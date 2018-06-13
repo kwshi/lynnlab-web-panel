@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 )
 
-type CCU struct {
+type Hub struct {
 	controller controller.Controller
 	log        []*data.Entry
 	newEntry    chan *data.Entry
@@ -17,9 +17,9 @@ type CCU struct {
 
 func New(
 	controller controller.Controller,
-) (*CCU, error) {
+) (*Hub, error) {
 
-	return &CCU{
+	return &Hub{
 		controller: controller,
 		log:        make([]*data.Entry, 0),
 		newEntry:    make(chan *data.Entry),
@@ -28,15 +28,15 @@ func New(
 
 }
 
-func (ccu *CCU) GetLog() []*data.Entry {
+func (ccu *Hub) GetLog() []*data.Entry {
 	return ccu.log
 }
 
-func (ccu *CCU) GetNewEntry() <-chan *data.Entry {
+func (ccu *Hub) GetNewEntry() <-chan *data.Entry {
 	return ccu.newEntry
 }
 
-func (ccu *CCU) next() error {
+func (ccu *Hub) next() error {
 	entry, err := ccu.controller.ReadEntry()
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (ccu *CCU) next() error {
 	return nil
 }
 
-func (ccu *CCU) Stream() error {
+func (ccu *Hub) Stream() error {
 	for {
 		ccu.logger.Println("reading data entry")
 		err := ccu.next()
