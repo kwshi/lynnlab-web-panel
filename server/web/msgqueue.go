@@ -1,20 +1,20 @@
 package web
 
 import (
-	"./message"
+	"./messages"
 )
 
-type messageQueue struct {
-	enqueueChan chan *message.Message
-	dequeueChan chan []*message.Message
-	queue []*message.Message
+type msgQueue struct {
+	enqueueChan chan *messages.Msg
+	dequeueChan chan []*messages.Msg
+	queue []*messages.Msg
 }
 
-func newMessageQueue() *messageQueue {
-	mq := &messageQueue{
-		enqueueChan: make(chan *message.Message),
-		dequeueChan: make(chan []*message.Message),
-		queue: make([]*message.Message, 0),
+func newMsgQueue() *msgQueue {
+	mq := &msgQueue{
+		enqueueChan: make(chan *messages.Msg),
+		dequeueChan: make(chan []*messages.Msg),
+		queue: make([]*messages.Msg, 0),
 	}
 
 	go mq.listen()
@@ -22,7 +22,7 @@ func newMessageQueue() *messageQueue {
 	return mq
 }
 
-func (mq *messageQueue) listen() {
+func (mq *msgQueue) listen() {
 	for {
 		if len(mq.queue) == 0 {
 			mq.queue = append(mq.queue, <-mq.enqueueChan)
@@ -38,11 +38,11 @@ func (mq *messageQueue) listen() {
 	}
 }
 
-func (mq *messageQueue) enqueue() chan<- *message.Message {
+func (mq *msgQueue) enqueue() chan<- *messages.Msg {
 	return mq.enqueueChan
 }
 
-func (mq *messageQueue) dequeue() <-chan []*message.Message {
+func (mq *msgQueue) dequeue() <-chan []*messages.Msg {
 	return mq.dequeueChan
 }
 
