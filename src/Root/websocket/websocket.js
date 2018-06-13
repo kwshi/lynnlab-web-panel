@@ -16,7 +16,5 @@ export default class WebsocketWrapper {
             });
         });
 
-        
-
     }
 }

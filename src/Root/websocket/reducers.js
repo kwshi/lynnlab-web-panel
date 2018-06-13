@@ -11,3 +11,9 @@ export const log = (state = [], action) => (
         ].slice(-500)) :
         state
 );
+
+export const motor = (state = {}, action) => (
+    action.type == actions.RECEIVE_MOTOR_STATE ?
+        action.state :
+        state
+);

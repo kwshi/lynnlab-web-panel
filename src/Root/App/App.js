@@ -2,6 +2,7 @@ import {connect} from 'react-redux';
 import {DataLog} from './DataLog/DataLog';
 import {DataPlot} from './DataPlot/DataPlot';
 import {DataBar} from './DataBar/DataBar';
+import {MotorConsole} from './MotorConsole/MotorConsole.js';
 import * as actions from './actions';
 import React from 'react';
 
@@ -105,6 +106,13 @@ const apps = {
                 dispatch(actions.dataBar.coincidences.setRangeMax(value)),
         }}),
     )(DataBar),
+    MotorConsole: connect(
+        state => ({
+            state: state.motor,
+        }),
+        dispatch => ({on: {
+        }}),
+    )(MotorConsole),
 };
 
 const App_ = ({currentApp}) => {
@@ -113,3 +121,4 @@ const App_ = ({currentApp}) => {
 };
 
 export const App = connect(({currentApp}) => ({currentApp}))(App_);
+

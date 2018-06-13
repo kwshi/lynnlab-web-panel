@@ -15,6 +15,7 @@ const apps = [
     'DataPlotCoincidences',
     'DataBarSingles',
     'DataBarCoincidences',
+    'MotorConsole',
 ];
 
 
@@ -24,6 +25,7 @@ const appNames = {
     DataPlotCoincidences: 'coincidences plot',
     DataBarSingles: 'singles bar plot',
     DataBarCoincidences: 'coincidences bar plot',
+    MotorConsole: 'motor console',
 };
 
 
