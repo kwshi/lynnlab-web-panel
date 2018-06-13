@@ -12,23 +12,6 @@ import (
 	"time"
 )
 
-type multiWriter struct {
-	writers []io.Writer
-}
-
-func newMultiWriter(writers ...io.Writer) *multiWriter {
-	return &multiWriter{writers}
-}
-
-func (m *multiWriter) Write(p []byte) (n int, err error) {
-	for _, writer := range m.writers {
-		n, err = writer.Write(p)
-		if err != nil {
-			return
-		}
-	}
-	return
-}
 
 type App struct {
 	server    *web.Server // web interface
@@ -90,7 +73,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	ccuWriter := ccu.NewWriter(newMultiWriter(ccuLog, ccuTempLog))
+	ccuWriter := ccu.NewWriter(io.MultiWriter(ccuLog, ccuTempLog))
 	ccuWriter.WriteHeader()
 
 	return &App{
@@ -117,6 +100,8 @@ func (app *App) listen() {
 			app.logger.Println("writing entry to log files")
 			app.ccuWriter.Write(entry)
 			app.logger.Println("written")
+
+			
 		}
 	}
 }
