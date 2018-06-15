@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"./config"
 )
 
 func main() {
@@ -14,6 +15,6 @@ func main() {
 		logger.Panic(err)
 	}
 
-	app.Start(WEB_ADDRESS)	
+	app.Start(config.WEB_ADDRESS)	
 
 }

@@ -1,4 +1,4 @@
-package motor
+package motors
 
 
 type Msg interface {

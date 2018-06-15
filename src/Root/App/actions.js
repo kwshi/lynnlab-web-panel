@@ -6,3 +6,9 @@ export const dataPlot = dataPlot_;
 
 import * as dataBar_ from './DataBar/actions';
 export const dataBar = dataBar_;
+
+import * as motorConsole_ from './MotorConsole/actions';
+export const motorConsole = motorConsole_;
+
+import * as websocket_ from '../websocket/actions';
+export const websocket = websocket_;

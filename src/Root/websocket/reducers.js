@@ -12,7 +12,7 @@ export const log = (state = [], action) => (
         state
 );
 
-export const motor = (state = {}, action) => (
+export const motors = (state = {}, action) => (
     action.type == actions.RECEIVE_MOTOR_STATE ?
         action.state :
         state

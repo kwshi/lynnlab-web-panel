@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"../ccu/data"
+	"../motors"
+	"./messages"
 )
 
 type Server struct {
@@ -14,6 +16,7 @@ type Server struct {
 	clients  map[*Client]bool
 	logger   *log.Logger
 	newClient chan *Client
+	newMessage chan *messages.Msg
 }
 
 func NewServer() (*Server, error) {
@@ -23,6 +26,7 @@ func NewServer() (*Server, error) {
 		clients:  make(map[*Client]bool),
 		logger:   log.New(os.Stdout, "server: ", log.LstdFlags),
 		newClient: make(chan *Client),
+		newMessage: make(chan *messages.Msg),
 	}
 
 	server.echo.File("/", "../client/root.html")
@@ -58,7 +62,7 @@ func (server *Server) handleWebsocket(context echo.Context) error {
 
 	server.logger.Println("websocket connection created")
 	
-	client := NewClient(connection)
+	client := NewClient(server, connection)
 
 	server.addClient(client)
 
@@ -68,16 +72,25 @@ func (server *Server) handleWebsocket(context echo.Context) error {
 }
 
 func (server *Server) BroadcastEntry(entry *data.Entry) {
+	server.logger.Println("broadcasting data entry")
 	for client := range server.clients {
 		client.SendEntry(entry)
-		//		if err != nil {
-		//			server.removeClient(client)
-		//		}
+	}
+}
+
+func (server *Server) BroadcastState(state motors.State) {
+	server.logger.Println("broadcasting motor state")
+	for client := range server.clients {
+		client.SendState(state)
 	}
 }
 
 func (server *Server) GetNewClient() <-chan *Client {
 	return server.newClient
+}
+
+func (server *Server) GetNewMessage() <-chan *messages.Msg {
+	return server.newMessage
 }
 
 func (server *Server) Start(address string) error {

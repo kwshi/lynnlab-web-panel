@@ -1,5 +1,8 @@
-from motor_base import BaseMotorController
+import sys
 import time
+import os.path
+sys.path.append('{!r}'.format(os.path.realpath(os.path.dirname(__file__))))
+from base import BaseMotorController
 
 
 class MotorController(BaseMotorController):

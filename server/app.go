@@ -3,20 +3,21 @@ package main
 import (
 	"./ccu"
 	"./ccu/controller"
-	"./motor"
+	"./motors"
+	"./config"
 	"./web"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
+	"encoding/json"
 	"time"
 )
 
 type App struct {
 	server    *web.Server // web interface
-	ccu       *ccu.CCU    // for recording ccu data
-	motors    *motor.Hub  // interfacing with motors
+	ccu       *ccu.Hub    // for recording ccu data
+	motors    *motors.Hub  // interfacing with motors
 	logger    *log.Logger // for logging info to command line
 	ccuWriter *ccu.Writer // for writing ccu data to log file
 }
@@ -28,7 +29,7 @@ func NewApp() (*App, error) {
 	}
 
 	var ccuController controller.Controller
-	if DEV_MODE {
+	if config.DEV_MODE {
 		ccuController, err = controller.NewDummy(0)
 	} else {
 		ccuController, err = controller.NewFPGA("COM4")
@@ -44,7 +45,7 @@ func NewApp() (*App, error) {
 
 	now := time.Now()
 	var dataDir string
-	if DEV_MODE {
+	if config.DEV_MODE {
 		dataDir = "data-dev"
 	} else {
 		dataDir = "data"
@@ -64,7 +65,7 @@ func NewApp() (*App, error) {
 	}
 
 	var tempLogName string
-	if DEV_MODE {
+	if config.DEV_MODE {
 		tempLogName = "../../tmp/ccu-log-dev.csv"
 	} else {
 		tempLogName = "../../tmp/ccu-log.csv"
@@ -77,7 +78,7 @@ func NewApp() (*App, error) {
 	ccuWriter := ccu.NewWriter(io.MultiWriter(ccuLog, ccuTempLog))
 	ccuWriter.WriteHeader()
 
-	motorHub, err := motor.New()
+	motorHub, err := motors.New()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func NewApp() (*App, error) {
 		server:    server,
 		ccu:       ccuHub,
 		motors:    motorHub,
-		logger:    log.New(ioutil.Discard, "app: ", log.LstdFlags),
+		logger:    log.New(os.Stdout, "app: ", log.LstdFlags),
 		ccuWriter: ccuWriter,
 	}, nil
 }
@@ -95,26 +96,37 @@ func (app *App) listen() {
 	for {
 		select {
 		case client := <-app.server.GetNewClient():
-			app.logger.Println("received new client, dumping log")
+			app.logger.Println("acknowledged new client")
 			client.SendDump(app.ccu.GetLog())
-			app.logger.Println("log dumped")
 
 		case entry := <-app.ccu.GetNewEntry():
-			app.logger.Println("received new entry, broadcasting")
+			app.logger.Println("broadcasting new data entry")
 			app.server.BroadcastEntry(entry)
-			app.logger.Println("broadcasted")
-
-			app.logger.Println("writing entry to log files")
 			app.ccuWriter.Write(entry)
-			app.logger.Println("written")
 
+		case state := <-app.motors.GetNewState():
+			app.logger.Println("broadcasting new motor state")
+			app.server.BroadcastState(state)
 
+		case msg := <-app.server.GetNewMessage():
+			app.logger.Println("acknowledged message", msg)
+			switch msg.Type {
+			case "motor-move":
+				var payload struct{
+					Motor int `json:"motor,string"`
+					Position float64 `json:"position,string"`
+				}
+				json.Unmarshal([]byte(msg.Payload.(string)), &payload)
+				app.motors.Move(payload.Motor, payload.Position)
+			default:
+			}
 		}
 	}
 }
 
 func (app *App) Start(address string) {
 	go app.ccu.Stream()
+	go app.motors.Listen()
 	go app.server.Start(address)
 	app.listen()
 }

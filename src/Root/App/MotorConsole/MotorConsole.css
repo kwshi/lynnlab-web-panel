@@ -1,0 +1,42 @@
+#motor-console {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 1rem;
+}
+
+#motor-console ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#motor-console li {
+}
+
+#motor-console li span {
+    margin-right: 1em;
+}
+
+#motor-console li span.serial {
+    font-weight: bold;
+    font-size: 2em;
+}
+
+#motor-console li span.position {
+
+}
+#motor-console li span.position::after {
+    content: '°';
+}
+
+#motor-console li span.moving {
+}
+#motor-console li span.moving::before {
+    content: '(';
+}
+#motor-console li span.moving::after {
+    content: ')';
+}

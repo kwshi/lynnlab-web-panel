@@ -108,9 +108,14 @@ const apps = {
     )(DataBar),
     MotorConsole: connect(
         state => ({
-            state: state.motor,
+            motors: state.motors,
+            state: state.app.motorConsole,
         }),
         dispatch => ({on: {
+            setMotorPosition: (sn, position) =>
+                dispatch(actions.motorConsole.setMotorPosition(sn, position)),
+            moveMotor: (sn, position) =>
+                dispatch(actions.websocket.sendMotorMove(sn, position)),
         }}),
     )(MotorConsole),
 };

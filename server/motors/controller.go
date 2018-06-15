@@ -1,4 +1,4 @@
-package motor
+package motors
 
 import (
 	"os/exec"
@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"errors"
+	"../config"
 )
 
 type Controller struct {
@@ -19,10 +20,10 @@ type Controller struct {
 
 func NewController() (*Controller, error) {
 	var path string
-	if DEV_MODE {
-		path = "python/motor_dev.py"
+	if config.DEV_MODE {
+		path = "motors/python/motor_dev.py"
 	} else {
-		path = "python/motor_thorlabs.py"
+		path = "motors/python/motor_thorlabs.py"
 	}
 	cmd := exec.Command("python", path)
 
@@ -133,4 +134,3 @@ func (c *Controller) Stop() error {
 	return c.send("exit")
 }
 
-.

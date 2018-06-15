@@ -12,9 +12,18 @@ export default class WebsocketWrapper {
             console.log('connect');
 
             this.websocket.addEventListener('message', message => {
-                dispatch(actions.receiveMessage(message));
+                dispatch(actions.receiveMessages(message));
+
+                this.websocket.send('{"type": "pong", "payload": null}');
             });
         });
 
+    }
+
+    send(type, payload) {
+        this.websocket.send(JSON.stringify({
+            type,
+            payload: JSON.stringify(payload),
+        }));
     }
 }

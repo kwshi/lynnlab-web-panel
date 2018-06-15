@@ -2,6 +2,7 @@ package messages
 
 import (
 	"../../ccu/data"
+	"../../motors"
 )
 
 type Msg struct {
@@ -20,5 +21,12 @@ func NewEntry(entry *data.Entry) *Msg {
 	return &Msg{
 		"log",
 		[]*data.Entry{entry},
+	}
+}
+
+func NewMotorState(state motors.State) *Msg {
+	return &Msg{
+		"motorState",
+		state,
 	}
 }
